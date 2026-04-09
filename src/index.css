@@ -1,12 +1,26 @@
 @import "tailwindcss";
 
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-zinc-50 text-zinc-900 transition-colors duration-500 antialiased;
+  }
+  .dark body {
+    @apply bg-zinc-950 text-zinc-100;
+  }
+}
+
 @theme {
   @keyframes bounce-intense {
     0%, 100% { transform: translateY(0) scale(1); opacity: 0; }
     50% { transform: translateY(-100px) scale(2); opacity: 1; }
   }
 }
-
 .animate-bounce-intense {
   animation: bounce-intense 1.5s ease-in-out forwards;
 }

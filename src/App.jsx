@@ -1,26 +1,35 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Tests from './pages/Tests';
 import Tracker from './pages/Tracker';
 import Community from './pages/Community';
 
 function App() {
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [darkMode]);
+
   return (
     <Router>
-      <nav style={{ padding: '20px', background: '#f0f0f0', display: 'flex', gap: '15px' }}>
-        <Link to="/">Home</Link>
-        <Link to="/tests">Tests</Link>
-        <Link to="/tracker">Mood Tracker</Link>
-        <Link to="/community">Community</Link>
-      </nav>
-
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/tests" element={<Tests />} />
-        <Route path="/tracker" element={<Tracker />} />
-        <Route path="/community" element={<Community />} />
-      </Routes>
+      <div className="min-h-screen">
+        <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+        <main className="pt-32 pb-20 px-4 max-w-7xl mx-auto">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/tests" element={<Tests />} />
+            <Route path="/tracker" element={<Tracker />} />
+            <Route path="/community" element={<Community />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }
