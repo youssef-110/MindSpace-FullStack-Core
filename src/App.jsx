@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-// Fixed imports to match your GitHub file names exactly
-import Navbar from './Navbar'; 
-import Home from './Home';
-import Tests from './Tests';
-import Tracker from './Tracker';
-import Community from './Community';
+import Navbar from './components/Navbar'; 
+import Home from './pages/Home';
+import Tests from './pages/Tests';
+import Tracker from './pages/Tracker';
+import Community from './pages/Community';
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
-    // Check localStorage first
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme) return savedTheme === 'dark';
-    // Fallback to system preference
     return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
@@ -30,8 +27,8 @@ function App() {
 
   return (
     <Router>
-      {/* This wrapper ensures the background color is always correct */}
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 transition-colors duration-500">
+      {/* The global wrapper forces the background and text to match the mode */}
+      <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-500 font-sans">
         <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
         
         <main className="pt-32 pb-20 px-4 max-w-7xl mx-auto">

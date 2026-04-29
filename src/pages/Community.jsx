@@ -1,38 +1,56 @@
-import React from 'react';
-
-const Post = ({ user, content, time }) => (
-  <div className="p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm transition-all duration-500">
-    <div className="flex justify-between items-center mb-4">
-      <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100">@{user}</span>
-      <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{time}</span>
-    </div>
-    <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed">{content}</p>
-  </div>
-);
+import React, { useState } from 'react';
 
 export default function Community() {
+  const [posts, setPosts] = useState([
+    { id: 1, content: "Remember to drink water and take a deep breath today.", time: "Just now" }
+  ]);
+  const [newPost, setNewPost] = useState("");
+
+  const handlePost = () => {
+    if (newPost.trim() === "") return;
+    const post = {
+      id: Date.now(),
+      content: newPost,
+      time: "Just now"
+    };
+    setPosts([post, ...posts]);
+    setNewPost(""); // Clear the box
+  };
+
   return (
-    <div className="max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="max-w-2xl mx-auto py-10 animate-in fade-in duration-700">
       <header className="mb-12 text-center">
-        <h1 className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white mb-2">The Abyss</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 font-medium">Share anonymously, reflect together.</p>
+        <h1 className="text-4xl font-black tracking-tighter text-zinc-900 dark:text-white mb-2">MindSpace Community</h1>
+        <p className="text-zinc-500 dark:text-zinc-400 font-medium">A safe space to share and reflect.</p>
       </header>
 
-      <div className="mb-12">
+      {/* Input Area */}
+      <div className="mb-10 p-6 bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 shadow-md transition-colors duration-500">
         <textarea 
+          value={newPost}
+          onChange={(e) => setNewPost(e.target.value)}
           placeholder="What's on your mind?"
-          className="w-full p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800 shadow-sm text-zinc-900 dark:text-white placeholder-zinc-400 focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-800 transition-all outline-none"
+          className="w-full p-4 bg-transparent text-zinc-900 dark:text-white outline-none resize-none placeholder-zinc-400"
+          rows="3"
         />
         <div className="flex justify-end mt-4">
-          <button className="px-8 py-3 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 font-bold rounded-full shadow-lg transition-transform active:scale-95">
+          <button 
+            onClick={handlePost}
+            className="px-6 py-2 bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all"
+          >
             Post
           </button>
         </div>
       </div>
 
-      <div className="space-y-6">
-        <Post user="anon_01" content="Sometimes it's okay not to be productive. Rest is a form of progress." time="2h ago" />
-        <Post user="mind_hex" content="The way we speak to ourselves matters more than we think." time="5h ago" />
+      {/* Feed Area */}
+      <div className="space-y-4">
+        {posts.map((post) => (
+          <div key={post.id} className="p-6 bg-white dark:bg-zinc-900 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 shadow-sm transition-colors duration-500">
+            <p className="text-zinc-800 dark:text-zinc-200 text-lg leading-relaxed">{post.content}</p>
+            <span className="block mt-4 text-xs font-bold text-zinc-400 uppercase tracking-widest">{post.time}</span>
+          </div>
+        ))}
       </div>
     </div>
   );
