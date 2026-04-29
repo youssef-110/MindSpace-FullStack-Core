@@ -1,11 +1,12 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-const FeatureCard = ({ title, description, icon }) => (
-  <div className="p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-md hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+const FeatureCard = ({ title, description, icon, path }) => (
+  <Link to={path} className="block p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-md hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
     <div className="text-4xl mb-6">{icon}</div>
     <h3 className="text-xl font-bold mb-3 text-zinc-900 dark:text-zinc-100">{title}</h3>
     <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed text-sm">{description}</p>
-  </div>
+  </Link>
 );
 
 export default function Home() {
@@ -25,16 +26,19 @@ export default function Home() {
           icon="📝" 
           title="Daily Tracker" 
           description="Log your moods and watch your emotional patterns emerge over time." 
+          path="/tracker"
         />
         <FeatureCard 
           icon="🧠" 
           title="Personality Tests" 
           description="Discover more about yourself with quick, insightful psychological quizzes." 
+          path="/tests"
         />
         <FeatureCard 
           icon="🤝" 
           title="Community" 
           description="Share your thoughts securely and connect with others in a safe space." 
+          path="/community"
         />
       </div>
     </div>

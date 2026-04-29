@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class', // This tells Tailwind to look for the "dark" class on <html>
+  darkMode: 'class', // <--- MAKE SURE THIS LINE IS HERE
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -9,4 +9,4 @@ export default {
     extend: {},
   },
   plugins: [],
-}
+};

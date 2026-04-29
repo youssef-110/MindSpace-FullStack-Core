@@ -1,25 +1,25 @@
 @import "tailwindcss";
 
 @layer base {
+  /* This ensures the browser scrollbar and base colors adapt */
   html {
-    /* Allow the browser to style scrollbars based on our class */
     color-scheme: light;
   }
   html.dark {
     color-scheme: dark;
   }
+  
+  /* Use standard CSS variables for the background as a fallback */
   body {
-    @apply antialiased transition-colors duration-500;
+    margin: 0;
+    padding: 0;
+    background-color: #fafafa; /* bg-zinc-50 */
+    color: #18181b; /* text-zinc-900 */
+    transition: background-color 0.5s ease, color 0.5s ease;
   }
-}
 
-@theme {
-  @keyframes bounce-intense {
-    0%, 100% { transform: translateY(0) scale(1); opacity: 0; }
-    50% { transform: translateY(-100px) scale(2); opacity: 1; }
+  html.dark body {
+    background-color: #09090b; /* bg-zinc-950 */
+    color: #f4f4f5; /* text-zinc-100 */
   }
-}
-
-.animate-bounce-intense {
-  animation: bounce-intense 1.5s ease-in-out forwards;
 }
