@@ -6,7 +6,8 @@ export default function Navbar({ darkMode, setDarkMode }) {
     { name: 'Home', path: '/' },
     { name: 'Tests', path: '/tests' },
     { name: 'Tracker', path: '/tracker' },
-    { name: 'Community', path: '/community' }
+    { name: 'Community', path: '/community' },
+    { name: 'AI Assistant', path: '/ai' } // Added the AI route here
   ];
 
   return (
@@ -29,7 +30,6 @@ export default function Navbar({ darkMode, setDarkMode }) {
 
         <div className="w-[1px] h-6 bg-zinc-200 dark:bg-zinc-700 mx-2" />
 
-        {/* This button MUST trigger the setDarkMode function */}
         <button 
           onClick={() => setDarkMode(!darkMode)}
           className="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 cursor-pointer hover:scale-110 active:scale-95 transition-all"

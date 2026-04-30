@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Tests from './pages/Tests';
 import Tracker from './pages/Tracker';
 import Community from './pages/Community';
+import AIAssistant from './pages/AIAssistant'; 
 
 function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -25,9 +26,6 @@ function App() {
 
   return (
     <Router>
-      {/* FORCE FIX: We apply the "dark" class here too. 
-        If the HTML tag fails, this div will catch it.
-      */}
       <div className={`${darkMode ? 'dark' : ''}`}>
         <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-500">
           <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
@@ -38,6 +36,7 @@ function App() {
               <Route path="/tests" element={<Tests />} />
               <Route path="/tracker" element={<Tracker />} />
               <Route path="/community" element={<Community />} />
+              <Route path="/ai" element={<AIAssistant />} /> {/* <--- ADD THIS */}
             </Routes>
           </main>
         </div>
