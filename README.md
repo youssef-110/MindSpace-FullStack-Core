@@ -1,16 +1,62 @@
-# React + Vite
+# MindSpace Full-Stack System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive mental health platform integrating traditional behavioral tracking with a locally-hosted AI Psychology Engine. This project demonstrates a modular full-stack architecture, secure data handling, and Retrieval-Augmented Generation (RAG).
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Technical Architecture
 
-## React Compiler
+The system is built as a decoupled architecture to ensure scalability and maintainability:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Frontend**: A responsive React application providing interfaces for journaling, mood tracking, and AI interaction.
+* **Backend**: A FastAPI-based REST API that manages data processing and coordinates the AI logic.
+* **AI Engine**: A local RAG pipeline utilizing ChromaDB for vector storage and Llama 3 for intelligent, context-aware responses grounded in psychological data.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Core Features
+
+### AI Contextual Awareness (RAG)
+Unlike standard chatbots, this system utilizes a vector database to index local text files. When a user asks a question, the system retrieves relevant psychological concepts to "ground" the AI's response in scientific theory.
+
+### Behavioral Tracking
+Includes modules for structured journaling and data logging, allowing users to monitor behavioral patterns over time.
+
+### Local-First Privacy
+All AI processing and vector storage occur locally via Ollama. This ensures that sensitive psychological data is never transmitted to third-party cloud providers.
+
+---
+
+## Tech Stack
+
+### Frontend
+* React.js
+* Vite
+* Tailwind CSS
+* Lucide Icons
+
+### Backend
+* Python
+* FastAPI
+* Pydantic (Data Validation)
+* Uvicorn (ASGI Server)
+
+### AI and Data
+* Ollama (Llama 3 Model)
+* LangChain (Orchestration)
+* ChromaDB (Vector Database)
+* HuggingFace Embeddings (Sentence Transformers)
+
+---
+
+## Installation and Setup
+
+### Prerequisites
+* Python 3.10 or higher
+* Node.js and npm
+* Ollama installed and running locally
+
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
