@@ -1,0 +1,2 @@
+MindSpace Vision: A privacy-first mental health companion designed to help users identify behavioral patterns using AI-assisted journaling.
+Data Handling: All journal logs are processed locally using RAG (Retrieval-Augmented Generation) to ensure maximum user confidentiality.
