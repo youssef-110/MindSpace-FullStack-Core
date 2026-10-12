@@ -34,9 +34,9 @@ export const crisisResources = [
     note: "Text with a trained crisis counselor, 24/7.",
   },
   {
-    name: "International Association for Suicide Prevention",
-    contact: "iasp.info/resources/Crisis_Centres",
-    note: "Directory of crisis centers around the world.",
+    name: "Find a helpline (any country)",
+    contact: "findahelpline.com",
+    note: "Free, verified directory of crisis lines worldwide.",
   },
   {
     name: "Emergency services",
@@ -44,3 +44,9 @@ export const crisisResources = [
     note: "If you are in immediate danger, please call now.",
   },
 ];
+
+export const CRISIS_MESSAGE =
+  "It sounds like you might be carrying something really heavy right now, and you deserve support from a real person. " +
+  "Please reach out now: call or text 988 (US & Canada), text HOME to 741741 (US) or 85258 (UK), " +
+  "or call your local emergency number (911 / 112) if you're in immediate danger. " +
+  "Outside the US, find a line at findahelpline.com. I'm still here and we can keep talking.";

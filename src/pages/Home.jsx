@@ -1,196 +1,229 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { load } from "../lib/storage";
+import { MatrixGrid } from "../components/MatrixCell";
+import MatrixCell from "../components/MatrixCell";
+import { BLUEPRINTS, generateItem } from "../lib/tests/matrix";
+import { questionnaires, CATEGORIES } from "../lib/tests/questionnaires";
+import { lessons } from "../lib/learn";
 
-const affirmations = [
-  "You don't have to feel better to begin — beginning is how you feel better.",
-  "Feelings are visitors. Let them come and go.",
-  "Rest is productive. Your worth isn't measured in output.",
-  "You've survived 100% of your hardest days so far.",
-  "Small steps still move you forward.",
-  "It's okay to not be okay — and it's okay to ask for help.",
-  "You are allowed to take up space and time.",
-  "Progress isn't linear, and that's perfectly normal.",
-  "Be as kind to yourself as you would be to a friend.",
-  "This moment is heavy, not permanent.",
-  "Noticing how you feel is already an act of care.",
-  "You can do hard things — slowly, gently, one at a time.",
-  "Your thoughts are not facts.",
-  "Healing happens in ordinary moments, not grand gestures.",
-];
+const ease = [0.22, 1, 0.36, 1];
 
-const features = [
-  { icon: "🧠", title: "Psychometrics & Clinical Suite", desc: "TriPM psychopathy, LSRP sociopathy, SD3 Dark Triad, Big Five 30-item, and validated wellness screeners.", path: "/tests", color: "from-indigo-400/20 to-blue-400/20" },
-  { icon: "✨", title: "Dr. MindSpace Clinical AI", desc: "High-speed Groq LLaMA-3.3-70B AI Psychiatrist with RAG DSM-5 & CBT psychometric synthesis.", path: "/ai", color: "from-rose-400/20 to-pink-400/20" },
-  { icon: "📈", title: "Mood & Vitals Tracker", desc: "Log moods, sleep, and energy. Watch your patterns emerge with gentle charts and streaks.", path: "/tracker", color: "from-teal-400/20 to-emerald-400/20" },
-  { icon: "📓", title: "Guided Journal", desc: "CBT-informed prompts, gratitude practice, and thought records to untangle heavy thinking.", path: "/journal", color: "from-amber-400/20 to-orange-400/20" },
-  { icon: "🌬️", title: "Breathe & Ground", desc: "Animated calming breathing and 5-4-3-2-1 grounding techniques for anxious moments.", path: "/breathe", color: "from-sky-400/20 to-cyan-400/20" },
-  { icon: "👑", title: "MindSpace Pro & Reports", desc: "10+ page in-depth clinical reports, subscale percentiles, and printable therapist PDF exports.", path: "/pricing", color: "from-amber-500/20 to-teal-500/20" },
-];
+function Reveal({ children, className = "" }) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.6, ease }}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
-const steps = [
-  { n: "01", t: "Check in", d: "Take 60 seconds to log how you actually feel — no filters needed here." },
-  { n: "02", t: "Understand", d: "Assessments and charts turn vague feelings into patterns you can see." },
-  { n: "03", t: "Practice", d: "Breathe, journal, and learn skills drawn from CBT and mindfulness research." },
-  { n: "04", t: "Grow", d: "Small daily reps compound. Watch your baseline shift over weeks, not hours." },
-];
-
-// Rotates once per day; computed at module load so render stays pure.
-const affirmation = affirmations[Math.floor(Date.now() / 86400000) % affirmations.length];
-
-export default function Home() {
-  const [moodCount] = useState(() => load("localMoods", []).length);
-  const [journalCount] = useState(() => load("journal", []).length);
+function HeroPuzzle() {
+  const item = useMemo(() => generateItem(BLUEPRINTS[8], 2024), []);
+  // Show the answer plus three balanced alternatives.
+  const choices = useMemo(() => {
+    const wrong = item.options.map((_, i) => i).filter((i) => i !== item.correctIndex).slice(0, 3);
+    return [...wrong.slice(0, 2), item.correctIndex, wrong[2]];
+  }, [item]);
+  const [picked, setPicked] = useState(null);
+  const solved = picked === item.correctIndex;
 
   return (
-    <div className="relative">
-      {/* Aurora background */}
-      <div className="aurora w-[34rem] h-[34rem] bg-teal-300/60 dark:bg-teal-600/25 -top-32 -left-24" />
-      <div className="aurora w-[28rem] h-[28rem] bg-indigo-300/60 dark:bg-indigo-600/25 top-24 right-0" style={{ animationDelay: "-6s" }} />
-      <div className="aurora w-[24rem] h-[24rem] bg-rose-200/60 dark:bg-fuchsia-700/20 top-[28rem] left-1/3" style={{ animationDelay: "-12s" }} />
-
-      {/* Hero */}
-      <section className="relative text-center pt-16 pb-20">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 dark:bg-zinc-900/70 border border-zinc-200 dark:border-zinc-800 text-xs font-bold text-zinc-600 dark:text-zinc-300 mb-8 backdrop-blur"
-        >
-          <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
-          Private by design — your data stays with you
-        </motion.div>
-
-        <motion.h1
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.05 }}
-          className="font-display text-6xl md:text-8xl font-semibold tracking-tight text-zinc-900 dark:text-white mb-6"
-        >
-          Your mind deserves
-          <br />
-          <span className="text-gradient italic">a space</span>
-        </motion.h1>
-
-        <motion.p
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.15 }}
-          className="text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto font-medium leading-relaxed"
-        >
-          A gentle, science-backed companion for the days you're thriving and the days
-          you're just surviving. Track, reflect, breathe, and understand yourself better.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.25 }}
-          className="flex flex-wrap items-center justify-center gap-4 mt-10"
-        >
-          <Link to="/tracker" className="btn-primary px-8 py-4 text-base">Start a check-in →</Link>
-          <Link to="/ai" className="btn-ghost px-8 py-4 text-base text-zinc-700 dark:text-zinc-200">Talk to the Companion</Link>
-        </motion.div>
-
-        {/* Daily affirmation */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="mt-14 max-w-xl mx-auto"
-        >
-          <div className="card p-6 text-left flex items-start gap-4">
-            <div className="text-2xl animate-float">🕊️</div>
-            <div>
-              <div className="text-[10px] font-black uppercase tracking-widest text-teal-600 dark:text-teal-400 mb-1">Today's reminder</div>
-              <p className="font-display italic text-lg text-zinc-800 dark:text-zinc-200">"{affirmation}"</p>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Feature grid */}
-      <section className="relative max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {features.map((f, i) => (
-            <motion.div
-              key={f.path + f.title}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-40px" }}
-              transition={{ duration: 0.5, delay: i * 0.06 }}
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, delay: 0.2, ease }}
+      className="panel p-4 sm:p-6 w-full max-w-[420px] mx-auto"
+    >
+      <p className="mb-3 font-bold">Try one. Which piece completes the pattern?</p>
+      <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.06, delayChildren: 0.35 } } }}>
+        <MatrixGrid cells={item.cells} reveal={solved} />
+      </motion.div>
+      <div className="mt-4 grid grid-cols-4 gap-2" role="radiogroup" aria-label="Answer choices">
+        {choices.map((i) => {
+          const state = picked === i ? (i === item.correctIndex ? "right" : "wrong") : null;
+          return (
+            <motion.button
+              key={i}
+              role="radio"
+              aria-checked={picked === i}
+              onClick={() => setPicked(i)}
+              animate={state === "wrong" ? { x: [0, -6, 6, -4, 4, 0] } : {}}
+              transition={{ duration: 0.4 }}
+              className={`aspect-square rounded-[var(--r-sm)] border-2 bg-surface p-1.5 transition-colors ${
+                state === "right" ? "border-sage" : state === "wrong" ? "border-rose" : "border-line hover:border-ink-2"
+              }`}
             >
-              <Link to={f.path} className={`card card-hover block p-8 h-full relative overflow-hidden group`}>
-                <div className={`absolute inset-0 bg-gradient-to-br ${f.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                <div className="relative">
-                  <div className="text-4xl mb-5 group-hover:scale-110 transition-transform duration-300 origin-left">{f.icon}</div>
-                  <h3 className="text-xl font-extrabold mb-2 text-zinc-900 dark:text-zinc-100">{f.title}</h3>
-                  <p className="text-zinc-500 dark:text-zinc-400 leading-relaxed text-sm">{f.desc}</p>
-                  <span className="inline-block mt-4 text-sm font-bold text-teal-600 dark:text-teal-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all">Explore →</span>
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-      </section>
+              <MatrixCell cell={item.options[i]} />
+            </motion.button>
+          );
+        })}
+      </div>
+      <p className="mt-3 min-h-[3rem] text-[0.95rem] text-ink-2" aria-live="polite">
+        {solved
+          ? "Right. Each row holds all three shapes and all three counts. That's fluid reasoning at work."
+          : picked !== null
+            ? "Not quite. Look at what changes along each row: the shape, and the number."
+            : "Twenty-four of these, getting harder, make up our reasoning test."}
+      </p>
+    </motion.div>
+  );
+}
 
-      {/* Your journey so far */}
-      {(moodCount > 0 || journalCount > 0) && (
-        <section className="relative max-w-3xl mx-auto mt-16">
-          <div className="card p-8 flex flex-wrap items-center justify-around gap-6 text-center">
-            <div>
-              <div className="text-4xl font-black text-teal-600 dark:text-teal-400">{moodCount}</div>
-              <div className="text-xs font-bold uppercase tracking-widest text-zinc-400">moods logged</div>
-            </div>
-            <div>
-              <div className="text-4xl font-black text-indigo-500 dark:text-indigo-400">{journalCount}</div>
-              <div className="text-xs font-bold uppercase tracking-widest text-zinc-400">journal entries</div>
-            </div>
-            <p className="w-full text-sm text-zinc-500 dark:text-zinc-400">Every entry is a rep for your mental fitness. Keep going. 🌱</p>
-          </div>
-        </section>
-      )}
+const STEPS = [
+  ["Learn the idea", "Short lessons explain what a trait or ability is and how psychologists measure it."],
+  ["Take the test", "Published questionnaires with their original wording and scoring, or our timed reasoning puzzles."],
+  ["Read an honest result", "Plain-language results that say what the score means and what it can't tell you."],
+];
+
+const FAQ = [
+  ["Is the IQ test accurate?", "It's a practice estimate. The puzzles follow the same logic as Raven's matrices and the scoring uses a proper statistical model, but the difficulty of each puzzle is estimated from its design, not measured on a large norm group. So we show a range, usually about ±13 points, and never call it an official IQ. A real IQ assessment is done one-to-one by a psychologist."],
+  ["Can a test here diagnose me?", "No. The mood, attention and personality-pattern tests are screeners: they flag whether a professional conversation might be worth having. Only a qualified clinician can diagnose."],
+  ["Where do the questions come from?", "Each questionnaire is a published research instrument, such as the IPIP Big Five, PHQ-9 or MSI-BPD, used with its original items, keying and cutoffs. Each test page lists its source."],
+  ["Where is my data stored?", "In your browser only. There are no accounts. Your results never leave your device unless you press 'Explain with AI', which sends just the scores, never your answers."],
+  ["What does the AI do?", "It explains concepts and helps you read a score the site already calculated. It never decides scores or labels, and it won't diagnose."],
+];
+
+export default function Home() {
+  const testCount = questionnaires.length;
+  return (
+    <>
+      {/* Hero */}
+      <section className="grid items-center gap-10 py-10 md:grid-cols-[1.15fr_1fr] md:py-20">
+        <div>
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease }}
+            className="text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl font-extrabold"
+          >
+            Learn how the mind is measured. Then measure yours.
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.08, ease }}
+            className="mt-5 max-w-xl text-lg text-ink-2"
+          >
+            Bite-sized psychology lessons, {testCount} research-based tests from personality to reasoning, and results that tell you
+            the truth, including what a score can't say.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.16, ease }}
+            className="mt-8 flex flex-wrap gap-3"
+          >
+            <Link to="/learn/how-tests-work" className="btn btn-primary">Start with a lesson</Link>
+            <Link to="/tests" className="btn btn-quiet">Browse the tests</Link>
+          </motion.div>
+        </div>
+        <HeroPuzzle />
+      </section>
 
       {/* How it works */}
-      <section className="relative max-w-5xl mx-auto mt-24 mb-8">
-        <h2 className="font-display text-4xl md:text-5xl font-semibold text-center text-zinc-900 dark:text-white mb-3">
-          Gentle by design
-        </h2>
-        <p className="text-center text-zinc-500 dark:text-zinc-400 mb-12 max-w-xl mx-auto">
-          Built on cognitive-behavioral and mindfulness research — designed for real humans on hard days.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {steps.map((s, i) => (
-            <motion.div
-              key={s.n}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              className="card p-7"
-            >
-              <div className="font-display text-3xl text-teal-500/60 dark:text-teal-400/50 mb-3">{s.n}</div>
-              <h3 className="font-extrabold text-lg mb-2 text-zinc-900 dark:text-zinc-100">{s.t}</h3>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">{s.d}</p>
-            </motion.div>
+      <section className="py-14" aria-labelledby="how">
+        <Reveal>
+          <h2 id="how" className="text-3xl sm:text-4xl font-bold mb-8">How it works</h2>
+        </Reveal>
+        <ol className="grid gap-6 sm:grid-cols-3">
+          {STEPS.map(([t, d], i) => (
+            <li key={t} className="border-t-2 border-ink pt-4">
+              <span className="font-display text-sm font-bold text-ink-2">Step {i + 1}</span>
+              <h3 className="mt-1 text-2xl font-bold">{t}</h3>
+              <p className="mt-2 text-ink-2">{d}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      {/* Tests */}
+      <section className="py-14" aria-labelledby="tests">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <h2 id="tests" className="text-3xl sm:text-4xl font-bold">The tests</h2>
+          <Link to="/tests" className="link">See all {testCount} tests</Link>
+        </Reveal>
+        <div className="grid gap-x-10 gap-y-8 md:grid-cols-2">
+          {CATEGORIES.map((c) => (
+            <div key={c.id}>
+              <h3 className="text-xl font-bold">{c.name}</h3>
+              <p className="text-sm text-ink-2 mb-2">{c.blurb}</p>
+              <ul className="divide-y divide-line border-y border-line">
+                {questionnaires.filter((q) => q.category === c.id).map((q) => (
+                  <li key={q.id}>
+                    <Link to={`/tests/${q.id}`} className="group flex items-center justify-between gap-4 py-3">
+                      <span>
+                        <span className="font-bold group-hover:text-brand">{q.name}</span>
+                        <span className="block text-sm text-ink-2">{q.instrument}</span>
+                      </span>
+                      <span className="tag shrink-0">{q.minutes} min</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* Safety note */}
-      <section className="relative max-w-3xl mx-auto mt-16">
-        <div className="card p-8 border-rose-100 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-950/10 text-center">
-          <div className="text-3xl mb-3">💗</div>
-          <h3 className="font-extrabold text-lg mb-2 text-zinc-900 dark:text-zinc-100">In a dark place right now?</h3>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5 max-w-md mx-auto">
-            You deserve immediate, human support. Crisis lines are free, confidential, and available 24/7.
-          </p>
-          <Link to="/resources" className="inline-block px-6 py-3 rounded-full bg-rose-500 text-white font-bold shadow-lg shadow-rose-500/30 hover:scale-105 transition-transform">
-            See crisis resources
-          </Link>
+      {/* Learning topics */}
+      <section className="py-14" aria-labelledby="topics">
+        <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <h2 id="topics" className="text-3xl sm:text-4xl font-bold">Learning topics</h2>
+          <Link to="/learn" className="link">All lessons</Link>
+        </Reveal>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {lessons.slice(0, 6).map((l) => (
+            <Link key={l.id} to={`/learn/${l.id}`} className="panel p-5 transition-transform hover:-translate-y-0.5">
+              <span className="tag">{l.track}</span>
+              <h3 className="mt-3 text-xl font-bold">{l.title}</h3>
+              <p className="mt-1.5 text-[0.95rem] text-ink-2">{l.summary}</p>
+            </Link>
+          ))}
         </div>
       </section>
-    </div>
+
+      {/* Trust */}
+      <section className="py-14" aria-labelledby="trust">
+        <div className="rounded-[var(--r-lg)] bg-ink text-paper p-6 sm:p-10">
+          <h2 id="trust" className="text-3xl sm:text-4xl font-bold max-w-2xl">What we promise about accuracy, and what we don't</h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+            {[
+              ["Real instruments", "Every questionnaire is a published measure with its original items, reverse-keying and cutoffs, and its source on the test page."],
+              ["Scoring you can check", "Scores are calculated by code with 60+ automated tests, never by the AI."],
+              ["Honest uncertainty", "The reasoning test gives a range, not a single IQ number. We don't invent percentiles we can't support."],
+              ["No diagnoses", "Screeners say whether a professional conversation might help. They never tell you that you have a condition."],
+            ].map(([t, d]) => (
+              <div key={t}>
+                <h3 className="text-lg font-bold text-marigold">{t}</h3>
+                <p className="mt-1 opacity-85">{d}</p>
+              </div>
+            ))}
+          </div>
+          <Link to="/learn/how-tests-work" className="btn mt-8 bg-paper text-ink">How psychological tests work</Link>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-14 max-w-3xl" aria-labelledby="faq">
+        <h2 id="faq" className="text-3xl sm:text-4xl font-bold mb-6">Questions</h2>
+        <div className="divide-y divide-line border-y border-line">
+          {FAQ.map(([q, a]) => (
+            <details key={q} className="group py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-bold">
+                {q}
+                <span className="text-2xl leading-none text-ink-2 transition-transform group-open:rotate-45" aria-hidden="true">+</span>
+              </summary>
+              <p className="mt-3 text-ink-2">{a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }

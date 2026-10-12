@@ -2,217 +2,121 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const techniques = [
-  {
-    id: "calm",
-    name: "Calming breath",
-    icon: "🌊",
-    desc: "Long exhales activate the body's rest response. Best for winding down.",
-    phases: [
-      { label: "Breathe in", secs: 4, scale: 1 },
-      { label: "Breathe out slowly", secs: 6, scale: 0.55 },
-    ],
-  },
-  {
-    id: "box",
-    name: "Box breathing",
-    icon: "📦",
-    desc: "Used by Navy SEALs to stay calm under pressure. Four equal sides.",
-    phases: [
-      { label: "Breathe in", secs: 4, scale: 1 },
-      { label: "Hold", secs: 4, scale: 1 },
-      { label: "Breathe out", secs: 4, scale: 0.55 },
-      { label: "Hold", secs: 4, scale: 0.55 },
-    ],
-  },
-  {
-    id: "478",
-    name: "4-7-8 breathing",
-    icon: "🌙",
-    desc: "Dr. Weil's relaxing breath — great before sleep or during spiraling thoughts.",
-    phases: [
-      { label: "Breathe in", secs: 4, scale: 1 },
-      { label: "Hold", secs: 7, scale: 1 },
-      { label: "Breathe out", secs: 8, scale: 0.55 },
-    ],
-  },
+  { id: "calm", name: "Calming breath", desc: "Longer exhales than inhales nudge the body toward rest. Good for winding down.", phases: [["Breathe in", 4, 1], ["Breathe out slowly", 6, 0.55]] },
+  { id: "box", name: "Box breathing", desc: "Four equal sides. Steady and easy to remember under pressure.", phases: [["Breathe in", 4, 1], ["Hold", 4, 1], ["Breathe out", 4, 0.55], ["Hold", 4, 0.55]] },
+  { id: "478", name: "4-7-8 breathing", desc: "A long hold and a long exhale. Many people use it before sleep.", phases: [["Breathe in", 4, 1], ["Hold", 7, 1], ["Breathe out", 8, 0.55]] },
 ];
 
-const groundingSteps = [
-  { n: 5, sense: "things you can SEE", icon: "👀", hint: "Look around slowly. Name them out loud or in your head." },
-  { n: 4, sense: "things you can TOUCH", icon: "✋", hint: "The texture of your clothes, the chair beneath you…" },
-  { n: 3, sense: "things you can HEAR", icon: "👂", hint: "Near sounds, far sounds, even the hum of silence." },
-  { n: 2, sense: "things you can SMELL", icon: "👃", hint: "Or two smells you like, if you can't smell anything now." },
-  { n: 1, sense: "thing you can TASTE", icon: "👅", hint: "Or one kind thing you can say about yourself." },
+const grounding = [
+  [5, "things you can see", "Look around slowly and name them."],
+  [4, "things you can touch", "Your clothes, the chair, the floor under your feet."],
+  [3, "things you can hear", "Near sounds, far sounds, even the hum of quiet."],
+  [2, "things you can smell", "Or two smells you like, if nothing comes."],
+  [1, "thing you can taste", "Or one kind thing you can say to yourself."],
 ];
 
-function BreathingSession({ technique, onExit }) {
-  const [phaseIdx, setPhaseIdx] = useState(0);
-  const [count, setCount] = useState(technique.phases[0].secs);
+function Session({ technique, onExit }) {
+  const [phase, setPhase] = useState(0);
+  const [count, setCount] = useState(technique.phases[0][1]);
   const [cycles, setCycles] = useState(0);
 
   useEffect(() => {
-    // Drive the whole session from one interval; local vars avoid
-    // cascading setState-in-effect renders.
-    let pIdx = 0;
-    let c = technique.phases[0].secs;
+    // One interval drives the session; locals avoid cascading state updates.
+    let p = 0;
+    let c = technique.phases[0][1];
     const timer = setInterval(() => {
       c -= 1;
       if (c <= 0) {
-        pIdx = (pIdx + 1) % technique.phases.length;
-        if (pIdx === 0) setCycles((cy) => cy + 1);
-        c = technique.phases[pIdx].secs;
-        setPhaseIdx(pIdx);
+        p = (p + 1) % technique.phases.length;
+        if (p === 0) setCycles((n) => n + 1);
+        c = technique.phases[p][1];
+        setPhase(p);
       }
       setCount(c);
     }, 1000);
     return () => clearInterval(timer);
   }, [technique]);
 
-  const phase = technique.phases[phaseIdx];
-
+  const [label, secs, scale] = technique.phases[phase];
   return (
-    <div className="flex flex-col items-center">
-      <div className="relative flex items-center justify-center h-[22rem] w-[22rem]">
-        {/* Ripple rings */}
-        {[1.35, 1.2].map((r, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full border border-teal-300/40 dark:border-teal-500/20"
-            animate={{ scale: phase.scale * r }}
-            transition={{ duration: phase.secs, ease: "easeInOut" }}
-            style={{ width: "16rem", height: "16rem" }}
-          />
-        ))}
+    <div className="flex flex-col items-center py-6">
+      <div className="relative grid place-items-center" style={{ width: "min(20rem, 80vw)", height: "min(20rem, 80vw)" }}>
         <motion.div
-          className="rounded-full bg-gradient-to-br from-teal-300 via-cyan-400 to-indigo-400 dark:from-teal-500 dark:via-cyan-600 dark:to-indigo-600 shadow-2xl shadow-teal-400/40 flex items-center justify-center"
-          animate={{ scale: phase.scale }}
-          transition={{ duration: phase.secs, ease: "easeInOut" }}
-          style={{ width: "16rem", height: "16rem" }}
+          className="absolute rounded-full bg-brand/15"
+          style={{ width: "100%", height: "100%" }}
+          animate={{ scale }}
+          transition={{ duration: secs, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="grid place-items-center rounded-full bg-brand text-brand-ink"
+          style={{ width: "72%", height: "72%" }}
+          animate={{ scale }}
+          transition={{ duration: secs, ease: "easeInOut" }}
         >
-          <div className="text-center text-white select-none">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={phase.label + phaseIdx}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                className="text-xl font-extrabold drop-shadow"
-              >
-                {phase.label}
-              </motion.div>
-            </AnimatePresence>
-            <div className="text-5xl font-black mt-1 drop-shadow">{count || phase.secs}</div>
+          <div className="text-center" aria-live="polite">
+            <div className="text-xl font-bold">{label}</div>
+            <div className="font-display text-5xl font-extrabold tabular-nums">{count || secs}</div>
           </div>
         </motion.div>
       </div>
-
-      <div className="text-sm font-bold text-zinc-400 mt-2 mb-6">
-        {cycles > 0 ? `${cycles} cycle${cycles > 1 ? "s" : ""} complete 🌱` : "Follow the circle with your breath"}
-      </div>
-      <button onClick={onExit} className="btn-ghost px-8 py-3 text-zinc-700 dark:text-zinc-200">End session</button>
+      <p className="mt-6 mb-5 text-ink-2">{cycles > 0 ? `${cycles} cycle${cycles > 1 ? "s" : ""} complete` : "Follow the circle with your breath"}</p>
+      <button onClick={onExit} className="btn btn-quiet">End session</button>
     </div>
   );
 }
 
 function Grounding({ onExit }) {
   const [step, setStep] = useState(0);
-  const done = step >= groundingSteps.length;
+  const done = step >= grounding.length;
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="card max-w-md mx-auto p-10 text-center">
+    <div className="panel mx-auto max-w-md p-8 text-center">
       {!done ? (
         <AnimatePresence mode="wait">
-          <motion.div key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }}>
-            <div className="text-5xl mb-4 animate-float">{groundingSteps[step].icon}</div>
-            <div className="font-display text-7xl font-semibold text-teal-500 mb-2">{groundingSteps[step].n}</div>
-            <h3 className="text-xl font-extrabold text-zinc-900 dark:text-white mb-3">{groundingSteps[step].sense}</h3>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8">{groundingSteps[step].hint}</p>
-            <button onClick={() => setStep(step + 1)} className="btn-primary px-10 py-3.5 w-full">
-              {step === groundingSteps.length - 1 ? "Done" : "Next"}
-            </button>
+          <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+            <div className="font-display text-7xl font-extrabold text-brand">{grounding[step][0]}</div>
+            <h2 className="mt-2 text-2xl font-bold">{grounding[step][1]}</h2>
+            <p className="mt-2 mb-8 text-ink-2">{grounding[step][2]}</p>
+            <button onClick={() => setStep(step + 1)} className="btn btn-primary w-full">{step === grounding.length - 1 ? "Done" : "Next"}</button>
           </motion.div>
         </AnimatePresence>
       ) : (
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-          <div className="text-5xl mb-4">🌿</div>
-          <h3 className="text-2xl font-extrabold text-zinc-900 dark:text-white mb-3">You're here.</h3>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-8">
-            Notice how your body feels now compared to a minute ago. You anchored yourself — that's a skill, and you just practiced it.
-          </p>
-          <button onClick={onExit} className="btn-primary px-10 py-3.5 w-full">Finish</button>
-        </motion.div>
+        <div>
+          <h2 className="text-2xl font-bold">You're here.</h2>
+          <p className="mt-2 mb-8 text-ink-2">Notice how your body feels now compared with a minute ago. Anchoring yourself is a skill, and you just practised it.</p>
+          <button onClick={onExit} className="btn btn-primary w-full">Finish</button>
+        </div>
       )}
-      <button onClick={onExit} className="text-xs font-bold text-zinc-400 hover:text-zinc-600 mt-4 cursor-pointer">Exit</button>
-    </motion.div>
+      {!done && <button onClick={onExit} className="mt-4 text-sm font-bold text-ink-2 hover:text-ink">Exit</button>}
+    </div>
   );
 }
 
 export default function Breathe() {
-  const [session, setSession] = useState(null); // technique object | "grounding" | null
-
+  const [session, setSession] = useState(null); // technique | "grounding" | null
   return (
-    <div className="max-w-4xl mx-auto relative">
-      <div className="aurora w-[26rem] h-[26rem] bg-cyan-200/60 dark:bg-cyan-700/20 -top-20 left-1/4" />
+    <div className="mx-auto max-w-4xl py-10">
+      <h1 className="text-4xl sm:text-5xl font-extrabold">Breathe and ground</h1>
+      <p className="mt-3 max-w-xl text-lg text-ink-2">Two minutes of slow breathing can calm your body's stress response. Pick one and follow along.</p>
 
-      <header className="text-center mb-12 relative">
-        <h1 className="font-display text-5xl font-semibold text-zinc-900 dark:text-white mb-3">Breathe & ground</h1>
-        <p className="text-zinc-500 dark:text-zinc-400 max-w-lg mx-auto">
-          Your breath is a remote control for your nervous system. Two minutes here can genuinely shift how you feel.
-        </p>
-      </header>
-
-      <AnimatePresence mode="wait">
+      <div className="mt-8">
         {session === null && (
-          <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {techniques.map((t, i) => (
-                <motion.button
-                  key={t.id}
-                  onClick={() => setSession(t)}
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.07 }}
-                  className="card card-hover p-7 text-left cursor-pointer"
-                >
-                  <div className="text-3xl mb-3">{t.icon}</div>
-                  <h3 className="font-extrabold text-lg text-zinc-900 dark:text-white mb-1.5">{t.name}</h3>
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-3">{t.desc}</p>
-                  <span className="text-xs font-black uppercase tracking-widest text-teal-600 dark:text-teal-400">
-                    {t.phases.map((p) => p.secs).join(" · ")}s
-                  </span>
-                </motion.button>
-              ))}
-            </div>
-
-            <motion.button
-              onClick={() => setSession("grounding")}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="card card-hover w-full p-7 text-left cursor-pointer flex items-center gap-5"
-            >
-              <div className="text-4xl">🧭</div>
-              <div>
-                <h3 className="font-extrabold text-lg text-zinc-900 dark:text-white">5-4-3-2-1 Grounding</h3>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                  For panic, dissociation, or spiraling thoughts — anchor to your senses, one at a time.
-                </p>
-              </div>
-            </motion.button>
-          </motion.div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {techniques.map((t) => (
+              <button key={t.id} onClick={() => setSession(t)} className="panel p-5 text-left transition-transform hover:-translate-y-0.5">
+                <h2 className="text-xl font-bold">{t.name}</h2>
+                <p className="mt-1.5 text-[0.95rem] text-ink-2">{t.desc}</p>
+                <span className="tag mt-4">{t.phases.map((p) => p[1]).join("-")} seconds</span>
+              </button>
+            ))}
+            <button onClick={() => setSession("grounding")} className="panel p-5 text-left md:col-span-3 transition-transform hover:-translate-y-0.5">
+              <h2 className="text-xl font-bold">5-4-3-2-1 grounding</h2>
+              <p className="mt-1.5 text-[0.95rem] text-ink-2">For panic or spiralling thoughts: anchor yourself to your senses, one at a time.</p>
+            </button>
+          </div>
         )}
-
-        {session && session !== "grounding" && (
-          <motion.div key="breath" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <BreathingSession technique={session} onExit={() => setSession(null)} />
-          </motion.div>
-        )}
-
-        {session === "grounding" && (
-          <motion.div key="ground" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <Grounding onExit={() => setSession(null)} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        {session && session !== "grounding" && <Session technique={session} onExit={() => setSession(null)} />}
+        {session === "grounding" && <Grounding onExit={() => setSession(null)} />}
+      </div>
     </div>
   );
 }

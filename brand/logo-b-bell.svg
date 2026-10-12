@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MindSpace">
+  <rect width="64" height="64" rx="16" fill="#4B3FC9"/>
+  <path d="M8 46 C 20 46, 22 16, 32 16 S 44 46, 56 46" fill="none" stroke="#ECEEFA" stroke-width="4" stroke-linecap="round"/>
+  <line x1="8" y1="50.5" x2="56" y2="50.5" stroke="#ECEEFA" stroke-opacity=".35" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="32" cy="16" r="4.5" fill="#F2B54E"/>
+</svg>

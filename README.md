@@ -1,84 +1,84 @@
-# 🌿 MindSpace — your mind deserves a space
+# MindSpace
 
-A gentle, science-backed mental wellness web app: mood tracking, guided journaling,
-validated self-assessments, breathing & grounding exercises, psychoeducation, an
-anonymous community wall, and an AI companion grounded in psychology.
+Learn how the mind is measured, then measure yours. Short psychology lessons, research-based
+self-assessments, and results that say what a score means and what it can't tell you.
 
-**MindSpace is a self-care companion, not a medical service.** It never diagnoses or
-treats. Crisis language anywhere in the app (chat, journal, community) triggers a
-supportive modal with 24/7 hotlines (988, Crisis Text Line, and international links).
+**For education and self-reflection. Not a medical service, and never a diagnosis.**
 
-## Features
+## What's inside
 
-| Page | What it does |
+| Area | What it does |
 |---|---|
-| **Tracker** | 60-second daily check-ins: mood (1–5), emotion tags, sleep & energy. Trend chart, streaks, monthly calendar. Local-first, optional Firebase sync. |
-| **Journal** | Five guided practices: free write, gratitude (3 good things), CBT thought record, unsent letter, worry dump. Stored only in your browser. |
-| **Breathe** | Animated calming / box / 4-7-8 breathing and 5-4-3-2-1 sensory grounding. |
-| **Assessments** | Clinically validated screeners with plain-language interpretation: PHQ-9, GAD-7, PSS-10, WHO-5, and a TIPI Big Five snapshot. PHQ-9 item 9 triggers crisis support. |
-| **Learn** | Bite-sized, evidence-based articles: anxiety, depression, the CBT triangle, sleep, burnout, self-compassion, emotions, how therapy works. |
-| **Community** | Anonymous supportive wall with hearts and house rules. |
-| **Companion** | AI chat with a counselor-grade system prompt (validate first, CBT/ACT/self-compassion toolkit, safety protocol), RAG over `mindspace-ai/data`, and awareness of your recent check-ins. |
-| **Resources** | Crisis lines and everyday paths to real-world support. |
+| **Learn** | 12 lessons (how tests work, Big Five, IQ, personality disorders, mood, ADHD, autism, CBT). Each ends with a 3-question check and links to its test. Progress is saved locally. |
+| **Tests** | 11 instruments, scored in code (see below). Drafts are saved, so a refresh doesn't lose answers. |
+| **Results** | A plain-language result, an "accuracy and limitations" section, the change since your last attempt, print/PDF, and an optional AI explanation. |
+| **My results** | History, plus backup export/import (JSON). |
+| **Ask AI** | A learning assistant for concepts and results. It explains; it never scores or diagnoses. |
+| **Breathe / Get help** | Breathing and grounding exercises; crisis lines and how to find a professional. |
 
-## Quick start
+### Tests
 
-### 1. Frontend (React + Vite + Tailwind v4 + framer-motion)
+| Test | Instrument | Scoring |
+|---|---|---|
+| Big Five personality | IPIP Big-Five Factor Markers (50 items, public domain) | 10–50 per trait, half the items reverse-keyed |
+| Self-esteem | Rosenberg (10) | 0–30, items 2, 5, 6, 8, 9 reversed |
+| Matrix reasoning | Original generated matrices (24, 20 min) | Rasch/EAP estimate on the IQ scale with a 90% range. **Practice estimate, not a validated IQ.** |
+| Personality difficulties | SAPAS (8) | Threshold ≥ 3, trust item reverse-scored |
+| Emotional intensity | MSI-BPD (10) | Threshold ≥ 7 |
+| Low mood | PHQ-9 | 0–27, standard bands; item 9 shows crisis support first |
+| Anxiety | GAD-7 | 0–21, standard bands |
+| Stress | PSS-10 | 0–40, items 4, 5, 7, 8 reversed |
+| Wellbeing | WHO-5 | ×4 → 0–100 |
+| Adult ADHD | ASRS v1.1 Part A (6) | Items 1–3 count at "Sometimes"+, 4–6 at "Often"+; ≥ 4 |
+| Autistic traits | AQ-10 | ≥ 6 |
+
+All scoring lives in `src/lib/tests/` and is covered by `src/lib/tests/__tests__/scoring.test.js`.
+
+**Why the matrix test is an estimate.** Each puzzle is generated from a rule blueprint
+(constant, progression, distribution-of-three, addition) across shape, count, size, fill and
+rotation, so every attempt is a fresh parallel form. The answer set is balanced, so you can't
+find the answer by spotting the "most typical" option. Difficulties come from rule complexity,
+not from a norm sample, so the result is shown as a range.
+
+## Run locally
 
 ```bash
 npm install
-npm run dev          # http://localhost:5173
+npm run dev
 ```
 
-### 2. AI backend (FastAPI)
+`npm run dev` also serves the `/api` functions. For the AI features, put a Groq key in `.env`:
+
+```
+GROQ_API_KEY=gsk_...
+GROQ_MODEL=llama-3.3-70b-versatile   # optional; any chat model your Groq account offers
+```
+
+Without a key everything works except the AI explanations and chat, which show a clear fallback.
 
 ```bash
-pip install -r requirements.txt
-cd mindspace-ai
-python main.py       # http://localhost:8000
+npm test        # scoring + safety unit tests
+npm run lint
+npm run build
 ```
 
-The Companion needs one of two model providers (set in `.env`):
+## Deploy (Vercel)
 
-- **Ollama (default, free & private):** install from [ollama.com](https://ollama.com), then `ollama pull llama3`.
-- **Anthropic Claude (better quality):** paste an `ANTHROPIC_API_KEY` into `.env`.
-
-Optional: `POST /sync` (or nothing — the API runs fine without RAG) re-indexes the
-psychology notes in `mindspace-ai/data/` into the Chroma vector store.
-
-### 3. Configuration — `.env`
-
-All keys live in the root `.env` (already templated): `VITE_API_URL`,
-`OLLAMA_MODEL`, `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL`, `AI_TEMPERATURE`,
-`CORS_ORIGINS`, and optional `VITE_FIREBASE_*` for tracker cloud sync.
-The app works fully offline/local if you set nothing.
-
-## Tests
-
-```bash
-npm test                                  # 20 frontend tests (scoring, safety, storage)
-cd mindspace-ai && python -m pytest tests # 10 backend tests (crisis detection, prompts)
-```
+The repo deploys as-is: Vite builds the static site, and `api/*.js` become serverless functions.
+Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) in the Vercel project's environment variables.
 
 ## Architecture
 
 ```
-src/
-  lib/            assessments.js (screeners + scoring) · safety.js (crisis detection)
-                  storage.js (local-first persistence)
-  components/     Navbar, CrisisModal
-  pages/          Home, Tracker, Journal, Breathe, Tests, Learn, Community, Resources, AIAssistant
-mindspace-ai/
-  main.py         FastAPI app: /chat /sync /health
-  prompts.py      Companion system prompt + message assembly
-  providers.py    Anthropic Claude or local Ollama, chosen by .env
-  safety.py       server-side crisis detection + hotline injection
-  brain.py        Chroma RAG over data/*.txt (lazy-loaded, optional)
+api/            explain.js · chat.js (Groq, timeouts, schema check, cache, rate limit)
+                _prompts.js (every AI prompt, one place) · _groq.js (shared helpers)
+src/lib/tests/  questionnaires.js (items + scoring) · matrix.js (generator + Rasch scoring)
+src/lib/        learn.js (lessons) · storage.js (localStorage) · ai.js (client) · safety.js
+src/pages/      Home · Learn · Lesson · Tests · TakeTest · Result · Results · Ask · Breathe · Help
+brand/          three logo directions (A in use) — see DESIGN.md
 ```
 
 ## Privacy
 
-Journals, chats, assessment results, and community posts are stored in
-`localStorage` on the user's device. Only mood check-ins are (optionally)
-synced to Firebase, and the chat message plus recent mood summary is sent to
-your chosen model provider when you talk to the Companion.
+There are no accounts and no database. Results, lesson progress and chat history stay in your browser.
+"Explain with AI" sends only computed scores, never your answers. Ask AI sends the conversation to Groq.

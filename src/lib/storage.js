@@ -1,5 +1,5 @@
-// Small localStorage wrapper — everything on MindSpace stays on the user's device
-// unless they use the (Firebase-backed) tracker sync.
+// Everything stays in this browser's localStorage. Nothing is sent to a server
+// except what the user explicitly asks the AI to explain.
 
 const PREFIX = "mindspace:";
 
@@ -21,69 +21,46 @@ export function save(key, value) {
   }
 }
 
-export function remove(key) {
-  try {
-    localStorage.removeItem(PREFIX + key);
-  } catch {
-    /* ignore */
+// ---------------- Test results ----------------
+
+export const getResults = () => load("results", []);
+
+export function saveResult(testId, result) {
+  const entry = { id: `${testId}-${Date.now()}`, testId, date: new Date().toISOString(), result };
+  save("results", [entry, ...getResults()].slice(0, 300));
+  return entry;
+}
+
+export const getResult = (id) => getResults().find((r) => r.id === id);
+
+export function deleteResult(id) {
+  save("results", getResults().filter((r) => r.id !== id));
+}
+
+// ---------------- Lesson progress ----------------
+
+export const getProgress = () => load("progress", {});
+
+export function saveQuizScore(lessonId, correct, total) {
+  const progress = getProgress();
+  const best = Math.max(correct, progress[lessonId]?.correct ?? 0);
+  save("progress", { ...progress, [lessonId]: { correct: best, total, date: new Date().toISOString() } });
+}
+
+// ---------------- Backup ----------------
+
+export function exportData() {
+  return JSON.stringify({ app: "mindspace", version: 2, results: getResults(), progress: getProgress() }, null, 2);
+}
+
+export function importData(json) {
+  const data = JSON.parse(json);
+  if (data?.app !== "mindspace" || !Array.isArray(data.results) || typeof data.progress !== "object") {
+    throw new Error("This file isn't a MindSpace backup.");
   }
-}
-
-// Append to a capped list (newest first).
-export function appendToList(key, item, cap = 500) {
-  const list = load(key, []);
-  const next = [item, ...list].slice(0, cap);
-  save(key, next);
-  return next;
-}
-
-// ---------------- Monetization & Tier Management ----------------
-export const MAX_FREE_DAILY_MESSAGES = 5;
-
-export function getUserTier() {
-  return load("userTier", "free"); // 'free' | 'pro'
-}
-
-export function setUserTier(tier) {
-  save("userTier", tier);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("mindspace:tier-change", { detail: { tier } }));
-  }
-  return tier;
-}
-
-export function isProUser() {
-  return getUserTier() === "pro";
-}
-
-export function getDailyAiUsage() {
-  const today = new Date().toISOString().slice(0, 10);
-  const usage = load("aiDailyUsage", { date: today, count: 0 });
-  if (usage.date !== today) {
-    return { date: today, count: 0 };
-  }
-  return usage;
-}
-
-export function incrementDailyAiUsage() {
-  const current = getDailyAiUsage();
-  const next = { date: current.date, count: current.count + 1 };
-  save("aiDailyUsage", next);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("mindspace:usage-change", { detail: next }));
-  }
-  return next;
-}
-
-export function unlockReport(reportId) {
-  const unlocked = load("unlockedReports", []);
-  if (!unlocked.includes(reportId)) {
-    save("unlockedReports", [...unlocked, reportId]);
-  }
-}
-
-export function isReportUnlocked(reportId) {
-  if (isProUser()) return true;
-  const unlocked = load("unlockedReports", []);
-  return unlocked.includes(reportId);
+  const valid = data.results.filter((r) => r && typeof r.id === "string" && typeof r.testId === "string" && typeof r.date === "string" && ["traits", "sum", "threshold", "matrix"].includes(r.result?.type));
+  const known = new Set(getResults().map((r) => r.id));
+  save("results", [...getResults(), ...valid.filter((r) => !known.has(r.id))].sort((a, b) => b.date.localeCompare(a.date)));
+  save("progress", { ...getProgress(), ...data.progress });
+  return valid.length;
 }
