@@ -1,16 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import Tests from "./pages/Tests";
-import Tracker from "./pages/Tracker";
-import Journal from "./pages/Journal";
-import Breathe from "./pages/Breathe";
-import Learn from "./pages/Learn";
-import Community from "./pages/Community";
-import Resources from "./pages/Resources";
-import AIAssistant from "./pages/AIAssistant";
+import PageLoader from "./components/PageLoader";
+
+// Route-Level Code Splitting for ultra-fast initial page loads
+const Home = lazy(() => import("./pages/Home"));
+const Tests = lazy(() => import("./pages/Tests"));
+const Tracker = lazy(() => import("./pages/Tracker"));
+const Journal = lazy(() => import("./pages/Journal"));
+const Breathe = lazy(() => import("./pages/Breathe"));
+const Learn = lazy(() => import("./pages/Learn"));
+const Community = lazy(() => import("./pages/Community"));
+const Resources = lazy(() => import("./pages/Resources"));
+const AIAssistant = lazy(() => import("./pages/AIAssistant"));
+const Pricing = lazy(() => import("./pages/Pricing"));
 
 function Page({ children }) {
   return (
@@ -32,19 +36,22 @@ function AnimatedRoutes() {
   }, [location.pathname]);
 
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Page><Home /></Page>} />
-        <Route path="/tests" element={<Page><Tests /></Page>} />
-        <Route path="/tracker" element={<Page><Tracker /></Page>} />
-        <Route path="/journal" element={<Page><Journal /></Page>} />
-        <Route path="/breathe" element={<Page><Breathe /></Page>} />
-        <Route path="/learn" element={<Page><Learn /></Page>} />
-        <Route path="/community" element={<Page><Community /></Page>} />
-        <Route path="/resources" element={<Page><Resources /></Page>} />
-        <Route path="/ai" element={<Page><AIAssistant /></Page>} />
-      </Routes>
-    </AnimatePresence>
+    <Suspense fallback={<PageLoader />}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Page><Home /></Page>} />
+          <Route path="/tests" element={<Page><Tests /></Page>} />
+          <Route path="/tracker" element={<Page><Tracker /></Page>} />
+          <Route path="/journal" element={<Page><Journal /></Page>} />
+          <Route path="/breathe" element={<Page><Breathe /></Page>} />
+          <Route path="/learn" element={<Page><Learn /></Page>} />
+          <Route path="/community" element={<Page><Community /></Page>} />
+          <Route path="/resources" element={<Page><Resources /></Page>} />
+          <Route path="/ai" element={<Page><AIAssistant /></Page>} />
+          <Route path="/pricing" element={<Page><Pricing /></Page>} />
+        </Routes>
+      </AnimatePresence>
+    </Suspense>
   );
 }
 

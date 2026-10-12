@@ -56,11 +56,19 @@ export default function Navbar({ darkMode, setDarkMode }) {
 
         <div className="flex items-center gap-2">
           <Link
+            to="/pricing"
+            className="flex items-center gap-1 text-xs font-black px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/15 to-teal-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:scale-105 active:scale-95 transition-all"
+            title="MindSpace Pro & Clinical Features"
+          >
+            👑 Pro
+          </Link>
+
+          <Link
             to="/resources"
             className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3.5 py-2 rounded-full bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-100 dark:border-rose-900 hover:scale-105 transition-transform"
             title="Crisis resources & hotlines"
           >
-            💗 Get help now
+            💗 988 Help
           </Link>
 
           <button
@@ -91,7 +99,7 @@ export default function Navbar({ darkMode, setDarkMode }) {
             exit={{ opacity: 0, y: -8 }}
             className="lg:hidden max-w-6xl mx-auto mt-2 glass rounded-3xl border border-zinc-200/70 dark:border-zinc-800 shadow-xl p-3 grid grid-cols-2 gap-2"
           >
-            {[...links, { name: "Resources", path: "/resources", icon: "💗" }].map((link) => (
+            {[...links, { name: "Pro Plans", path: "/pricing", icon: "👑" }, { name: "Resources", path: "/resources", icon: "💗" }].map((link) => (
               <Link
                 key={link.path}
                 to={link.path}

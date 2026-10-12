@@ -21,12 +21,12 @@ const affirmations = [
 ];
 
 const features = [
-  { icon: "📈", title: "Mood Tracker", desc: "Log moods, sleep, and energy. Watch your patterns emerge with gentle charts and streaks.", path: "/tracker", color: "from-teal-400/20 to-emerald-400/20" },
+  { icon: "🧠", title: "Psychometrics & Clinical Suite", desc: "TriPM psychopathy, LSRP sociopathy, SD3 Dark Triad, Big Five 30-item, and validated wellness screeners.", path: "/tests", color: "from-indigo-400/20 to-blue-400/20" },
+  { icon: "✨", title: "Dr. MindSpace Clinical AI", desc: "High-speed Groq LLaMA-3.3-70B AI Psychiatrist with RAG DSM-5 & CBT psychometric synthesis.", path: "/ai", color: "from-rose-400/20 to-pink-400/20" },
+  { icon: "📈", title: "Mood & Vitals Tracker", desc: "Log moods, sleep, and energy. Watch your patterns emerge with gentle charts and streaks.", path: "/tracker", color: "from-teal-400/20 to-emerald-400/20" },
   { icon: "📓", title: "Guided Journal", desc: "CBT-informed prompts, gratitude practice, and thought records to untangle heavy thinking.", path: "/journal", color: "from-amber-400/20 to-orange-400/20" },
-  { icon: "🌬️", title: "Breathe & Ground", desc: "Animated breathing exercises and the 5-4-3-2-1 grounding technique for anxious moments.", path: "/breathe", color: "from-sky-400/20 to-cyan-400/20" },
-  { icon: "🧠", title: "Self-Assessments", desc: "Clinically validated screeners — PHQ-9, GAD-7, stress, wellbeing, and a Big Five snapshot.", path: "/tests", color: "from-indigo-400/20 to-blue-400/20" },
-  { icon: "📚", title: "Learn", desc: "Bite-sized, evidence-based psychoeducation on anxiety, depression, sleep, and burnout.", path: "/learn", color: "from-fuchsia-400/20 to-purple-400/20" },
-  { icon: "✨", title: "AI Companion", desc: "A warm, psychology-grounded companion to talk things through — anytime, judgment-free.", path: "/ai", color: "from-rose-400/20 to-pink-400/20" },
+  { icon: "🌬️", title: "Breathe & Ground", desc: "Animated calming breathing and 5-4-3-2-1 grounding techniques for anxious moments.", path: "/breathe", color: "from-sky-400/20 to-cyan-400/20" },
+  { icon: "👑", title: "MindSpace Pro & Reports", desc: "10+ page in-depth clinical reports, subscale percentiles, and printable therapist PDF exports.", path: "/pricing", color: "from-amber-500/20 to-teal-500/20" },
 ];
 
 const steps = [
