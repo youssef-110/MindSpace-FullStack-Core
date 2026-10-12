@@ -47,14 +47,18 @@ npm install
 npm run dev
 ```
 
-`npm run dev` also serves the `/api` functions. For the AI features, put a Groq key in `.env`:
+`npm run dev` also serves the `/api` functions. For the AI features, copy `.env.example` to `.env` and add a Gemini key
+(free from Google AI Studio):
 
 ```
-GROQ_API_KEY=gsk_...
-GROQ_MODEL=llama-3.3-70b-versatile   # optional; any chat model your Groq account offers
+GEMINI_API_KEY=...
+GEMINI_MODELS=gemini-3.1-flash-lite,gemini-2.5-flash,gemini-flash-latest   # optional, tried in order
+GROQ_API_KEY=...                                                           # optional last fallback
 ```
 
-Without a key everything works except the AI explanations and chat, which show a clear fallback.
+Models are tried in order: if one is rate-limited, slow (8 s for explanations) or down, the next takes over.
+Measured: explanations ≈ 1.5 s (instant when cached), chat starts streaming in ≈ 0.55 s.
+Without any key everything works except the AI explanations and chat, which show a clear fallback.
 
 ```bash
 npm test        # scoring + safety unit tests
@@ -65,13 +69,13 @@ npm run build
 ## Deploy (Vercel)
 
 The repo deploys as-is: Vite builds the static site, and `api/*.js` become serverless functions.
-Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`) in the Vercel project's environment variables.
+Set `GEMINI_API_KEY` (and optionally `GEMINI_MODELS`, `GROQ_API_KEY`) in the Vercel project's environment variables, then redeploy.
 
 ## Architecture
 
 ```
-api/            explain.js · chat.js (Groq, timeouts, schema check, cache, rate limit)
-                _prompts.js (every AI prompt, one place) · _groq.js (shared helpers)
+api/            explain.js · chat.js (timeouts, JSON schema check, cache, rate limit)
+                _prompts.js (every AI prompt, one place) · _llm.js (Gemini → Groq fallback chain)
 src/lib/tests/  questionnaires.js (items + scoring) · matrix.js (generator + Rasch scoring)
 src/lib/        learn.js (lessons) · storage.js (localStorage) · ai.js (client) · safety.js
 src/pages/      Home · Learn · Lesson · Tests · TakeTest · Result · Results · Ask · Breathe · Help
@@ -81,4 +85,4 @@ brand/          three logo directions (A in use) — see DESIGN.md
 ## Privacy
 
 There are no accounts and no database. Results, lesson progress and chat history stay in your browser.
-"Explain with AI" sends only computed scores, never your answers. Ask AI sends the conversation to Groq.
+"Explain with AI" sends only computed scores, never your answers. Ask AI sends the conversation, plus your latest scores only if you tick "Use my latest results", to Google Gemini.

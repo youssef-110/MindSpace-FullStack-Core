@@ -2,7 +2,7 @@
 // summary holds only numbers/labels the site already computed.
 import { byId } from "../src/lib/tests/questionnaires.js";
 import { EXPLAIN_SYSTEM, explainUser } from "./_prompts.js";
-import { groq, hasKey, readJson, sendJson, cacheGet, cacheSet, rateLimited } from "./_groq.js";
+import { llm, hasKey, readJson, sendJson, cacheGet, cacheSet, rateLimited } from "./_llm.js";
 
 const isText = (x, max) => typeof x === "string" && x.trim().length > 0 && x.length <= max;
 
@@ -26,25 +26,25 @@ export default async function handler(req, res) {
   if (hit) return sendJson(res, 200, { ...hit, cached: true });
 
   try {
-    const r = await groq(
+    const r = await llm(
       {
-        max_tokens: 450,
+        max_tokens: 700,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: EXPLAIN_SYSTEM },
           { role: "user", content: explainUser(test, body.summary) },
         ],
       },
-      12000
+      8000
     );
-    if (!r.ok) throw new Error(`Groq ${r.status}`);
     const data = await r.json();
-    const out = JSON.parse(data.choices[0].message.content);
+    // Some models wrap JSON in a code fence despite response_format.
+    const out = JSON.parse(data.choices[0].message.content.replace(/^\s*```(?:json)?|```\s*$/g, ""));
     // Enforce the schema; anything else counts as a failure and the client shows its fallback.
     if (!isText(out.summary, 900) || !Array.isArray(out.points) || out.points.length < 1 || !out.points.every((p) => isText(p, 400)) || !isText(out.caution, 400)) {
       throw new Error("Schema mismatch");
     }
-    const clean = { summary: out.summary, points: out.points.slice(0, 3), caution: out.caution };
+    const clean = { summary: out.summary, points: out.points.slice(0, 3), caution: out.caution, model: r.model };
     cacheSet(key, clean);
     return sendJson(res, 200, clean);
   } catch (e) {

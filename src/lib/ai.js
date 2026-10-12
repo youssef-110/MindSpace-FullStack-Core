@@ -28,14 +28,14 @@ export async function explainResult(testId, summary) {
   }
 }
 
-export async function streamChat(messages, onText) {
+export async function streamChat(messages, onText, results) {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 30000);
   try {
     const r = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages }),
+      body: JSON.stringify({ messages, results }),
       signal: ctrl.signal,
     });
     if (!r.ok || !r.body) {

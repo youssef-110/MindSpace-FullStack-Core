@@ -1,6 +1,7 @@
-// POST /api/chat { messages: [{role, content}] } -> streamed plain text.
-import { CHAT_SYSTEM } from "./_prompts.js";
-import { groq, hasKey, readJson, sendJson, rateLimited } from "./_groq.js";
+// POST /api/chat { messages: [{role, content}], results?: [{testId, summary}] } -> streamed plain text.
+// `results` is only sent when the user opts in, and holds computed scores, never answers.
+import { CHAT_SYSTEM, resultsContext } from "./_prompts.js";
+import { llm, hasKey, readJson, sendJson, rateLimited } from "./_llm.js";
 import { detectCrisis, CRISIS_MESSAGE } from "../src/lib/safety.js";
 
 export default async function handler(req, res) {
@@ -20,6 +21,13 @@ export default async function handler(req, res) {
   const last = messages.at(-1);
   if (!last || last.role !== "user") return sendJson(res, 400, { error: "Send at least one user message" });
 
+  const shared = Array.isArray(body.results) ? body.results.slice(0, 15) : [];
+  const context = JSON.stringify(shared).length <= 4000 ? resultsContext(shared) : "";
+  const system = context ? `${CHAT_SYSTEM}
+
+The person chose to share their latest results:
+${context}` : CHAT_SYSTEM;
+
   const crisis = detectCrisis(last.content);
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
@@ -35,8 +43,7 @@ export default async function handler(req, res) {
 
   let wrote = crisis;
   try {
-    const r = await groq({ max_tokens: 500, stream: true, messages: [{ role: "system", content: CHAT_SYSTEM }, ...messages] }, 20000);
-    if (!r.ok || !r.body) throw new Error(`Groq ${r.status}`);
+    const r = await llm({ max_tokens: 900, stream: true, messages: [{ role: "system", content: system }, ...messages] }, 25000);
     const decoder = new TextDecoder();
     let buffer = "";
     for await (const chunk of r.body) {

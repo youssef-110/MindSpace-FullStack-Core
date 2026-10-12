@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { streamChat } from "../lib/ai";
 import { load, save } from "../lib/storage";
 import { detectCrisis } from "../lib/safety";
+import { latestSummaries } from "../lib/summary";
 import { CrisisCallout } from "../components/ui";
 
 const STARTERS = [
@@ -30,6 +31,8 @@ export default function Ask() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [crisis, setCrisis] = useState(false);
+  const [shareResults, setShareResults] = useState(() => load("chatShareResults", false));
+  const [available] = useState(() => latestSummaries());
   const endRef = useRef(null);
 
   useEffect(() => {
@@ -47,8 +50,10 @@ export default function Ask() {
     setError("");
     setBusy(true);
     try {
-      const { crisis: flagged } = await streamChat(history, (t) =>
-        setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: t }])
+      const { crisis: flagged } = await streamChat(
+        history,
+        (t) => setMessages((m) => [...m.slice(0, -1), { role: "assistant", content: t }]),
+        shareResults ? available : undefined
       );
       if (flagged) setCrisis(true);
     } catch (e) {
@@ -71,12 +76,33 @@ export default function Ask() {
         )}
       </div>
 
+      {available.length > 0 && (
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-[var(--r-md)] bg-sunken p-4">
+          <input
+            type="checkbox"
+            className="mt-1 h-5 w-5 accent-[var(--brand)]"
+            checked={shareResults}
+            onChange={(e) => {
+              setShareResults(e.target.checked);
+              save("chatShareResults", e.target.checked);
+            }}
+          />
+          <span>
+            <span className="font-bold">Use my latest results</span>
+            <span className="block text-sm text-ink-2">
+              Lets the AI see the scores from your {available.length} most recent test{available.length > 1 ? "s" : ""} (never your answers), so you can ask things like
+              "what do my results say together?"
+            </span>
+          </span>
+        </label>
+      )}
+
       {crisis && <div className="mt-6"><CrisisCallout compact /></div>}
 
       <div className="mt-8 space-y-4" aria-live="polite">
         {messages.length === 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
-            {STARTERS.map((s) => (
+            {(available.length && shareResults ? ["What do my results say when you put them together?", ...STARTERS.slice(0, 3)] : STARTERS).map((s) => (
               <button key={s} onClick={() => send(s)} className="panel p-4 text-left text-[0.95rem] font-bold hover:border-ink-2">{s}</button>
             ))}
           </div>

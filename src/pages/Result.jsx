@@ -4,19 +4,11 @@ import { motion } from "framer-motion";
 import { byId } from "../lib/tests/questionnaires";
 import { getResult, getResults, deleteResult } from "../lib/storage";
 import { explainResult } from "../lib/ai";
+import { summarize } from "../lib/summary";
 import { CrisisCallout, Meter, Icon } from "../components/ui";
 
 const TONE = { good: "text-sage", ok: "text-ink", warn: "text-amber", alert: "text-rose" };
 const fmtDate = (iso) => new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
-
-// Only computed numbers and labels go to the AI — never the individual answers.
-function summarize(r) {
-  if (r.type === "traits") return { traits: Object.fromEntries(r.traits.map((t) => [t.name, `${t.score}/50 (${t.band})`])), riskFlag: r.riskFlag };
-  if (r.type === "sum") return { score: r.score, max: r.max, band: r.band.level, riskFlag: r.riskFlag };
-  if (r.type === "threshold") return { score: r.score, max: r.max, cutoff: r.cutoff, aboveThreshold: r.positive, riskFlag: r.riskFlag };
-  if (r.type === "matrix") return { correct: r.correct, total: r.total, practiceEstimate: r.estimate, range90: `${r.low}-${r.high}` };
-  return {};
-}
 
 function BellCurve({ low, high, estimate }) {
   // x maps IQ-scale 55..145 onto 0..300
