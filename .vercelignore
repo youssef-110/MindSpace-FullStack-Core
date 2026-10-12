@@ -1,0 +1,9 @@
+.venv*
+node_modules
+dist
+.pytest_cache
+.sixth
+data
+mindspace_brain
+.env
+.env.*
