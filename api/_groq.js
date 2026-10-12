@@ -44,7 +44,8 @@ export function cacheSet(k, v) {
 // shortcut: per-instance limiter, not global across instances; use Vercel KV/Upstash for a hard limit.
 const hits = new Map();
 export function rateLimited(req, max = 30, windowMs = 60_000) {
-  const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "?").split(",")[0];
+  // x-real-ip is set by Vercel's edge; the first x-forwarded-for entry can be spoofed by the client.
+  const ip = String(req.headers["x-real-ip"] || req.socket?.remoteAddress || "?");
   const now = Date.now();
   const recent = (hits.get(ip) || []).filter((t) => now - t < windowMs);
   recent.push(now);
