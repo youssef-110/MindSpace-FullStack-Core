@@ -3,6 +3,7 @@
 import { byId } from "../src/lib/tests/questionnaires.js";
 import { EXPLAIN_SYSTEM, explainUser } from "./_prompts.js";
 import { llm, hasKey, readJson, sendJson, cacheGet, cacheSet, rateLimited } from "./_llm.js";
+import { takeQuota, quotaHeaders, quotaError } from "./_quota.js";
 
 const isText = (x, max) => typeof x === "string" && x.trim().length > 0 && x.length <= max;
 
@@ -25,10 +26,15 @@ export default async function handler(req, res) {
   const hit = cacheGet(key);
   if (hit) return sendJson(res, 200, { ...hit, cached: true });
 
+  // Cache hits are free; everything else spends one request from the user's daily quota.
+  const q = await takeQuota(req);
+  if (!q.ok) return quotaError(res, q);
+  quotaHeaders(res, q);
+
   try {
     const r = await llm(
       {
-        max_tokens: 700,
+        max_tokens: q.saver ? 450 : 700,
         response_format: { type: "json_object" },
         messages: [
           { role: "system", content: EXPLAIN_SYSTEM },

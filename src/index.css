@@ -5,7 +5,7 @@
 
 @theme {
   --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
 
   --color-paper: var(--paper);
   --color-surface: var(--surface);
@@ -59,7 +59,7 @@ html.dark {
 }
 
 @layer base {
-  html { color-scheme: light; -webkit-text-size-adjust: 100%; }
+  html { color-scheme: light; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
   html.dark { color-scheme: dark; }
   body {
     margin: 0;
@@ -75,6 +75,9 @@ html.dark {
   ::selection { background: var(--marigold); color: #171b3a; }
   :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
   button { cursor: pointer; font: inherit; color: inherit; }
+  button, a, [role="button"], [role="tab"], [role="radio"] { touch-action: manipulation; }
+  input, textarea, select { font-size: 16px; }
+  input:focus-visible { outline-offset: 0; }
 }
 
 @layer components {
@@ -93,9 +96,8 @@ html.dark {
   .btn:active { transform: scale(0.97); }
   .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
   .btn-primary { background: var(--brand); color: var(--brand-ink); }
-  .btn-primary:hover { filter: brightness(1.08); }
   .btn-quiet { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
-  .btn-quiet:hover { border-color: var(--ink-2); }
+  @media (hover: hover) and (pointer: fine) { .btn-primary:hover { filter: brightness(1.08); } .btn-quiet:hover { border-color: var(--ink-2); } }
   .tag {
     display: inline-flex; align-items: center; gap: 0.35rem;
     font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem;

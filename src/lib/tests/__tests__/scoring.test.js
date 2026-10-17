@@ -6,13 +6,14 @@ const fill = (q, v) => q.items.map(() => v);
 
 describe("questionnaire catalog", () => {
   it("has the published item counts", () => {
-    const counts = { "big-five": 50, "self-esteem": 10, sapas: 8, "msi-bpd": 10, phq9: 9, gad7: 7, pss10: 10, who5: 5, asrs: 6, aq10: 10 };
+    const counts = { "big-five": 50, "self-esteem": 10, sapas: 8, "msi-bpd": 10, phq9: 9, gad7: 7, pss10: 10, who5: 5, asrs: 6, aq10: 10, swls: 5, loneliness: 3, resilience: 6, "self-efficacy": 10, grit: 8 };
     for (const [id, n] of Object.entries(counts)) expect(byId(id).items).toHaveLength(n);
   });
 
   it("every summed scale has bands reaching its max", () => {
     for (const q of questionnaires.filter((x) => x.scoring.type === "sum")) {
-      const top = scoreQuestionnaire(q, q.items.map((_, i) => (q.scoring.reverse?.includes(i) ? 0 : Math.max(...q.options.map((o) => o.value)))));
+      const vals = q.options.map((o) => o.value);
+      const top = scoreQuestionnaire(q, q.items.map((_, i) => (q.scoring.reverse?.includes(i) ? Math.min(...vals) : Math.max(...vals))));
       expect(top.score).toBe(q.scoring.max);
       expect(q.scoring.bands.at(-1).max).toBe(q.scoring.max);
     }
@@ -64,6 +65,36 @@ describe("summed scales", () => {
     const q = byId("self-esteem");
     // "Strongly agree" (3) to everything: 5 positive items × 3 + 5 negative × 0
     expect(scoreQuestionnaire(q, fill(q, 3)).score).toBe(15);
+  });
+});
+
+describe("added scales", () => {
+  it("SWLS sums 5-35 with Pavot & Diener bands", () => {
+    const q = byId("swls");
+    expect(scoreQuestionnaire(q, fill(q, 1))).toMatchObject({ score: 5, band: { level: "Extremely dissatisfied" } });
+    expect(scoreQuestionnaire(q, fill(q, 4)).band.level).toBe("Neutral"); // 20
+    expect(scoreQuestionnaire(q, fill(q, 5)).band.level).toBe("Slightly satisfied"); // 25
+  });
+  it("UCLA-3 flags loneliness at 6+", () => {
+    const q = byId("loneliness");
+    expect(scoreQuestionnaire(q, [2, 2, 1]).band.level).toBe("Not lonely"); // 5
+    expect(scoreQuestionnaire(q, [2, 2, 2]).band.level).toBe("Lonely"); // 6
+  });
+  it("BRS reverse-scores items 2, 4, 6 and averages", () => {
+    const q = byId("resilience");
+    expect(scoreQuestionnaire(q, [5, 1, 5, 1, 5, 1])).toMatchObject({ score: 5, band: { level: "High resilience" } });
+    expect(scoreQuestionnaire(q, fill(q, 3)).score).toBe(3);
+    expect(scoreQuestionnaire(q, [3, 3, 3, 3, 3, 4]).band.level).toBe("Low resilience"); // 2.83
+  });
+  it("Grit-S reverse-scores the interest items", () => {
+    const q = byId("grit");
+    // "Very much like me" (5) to everything: 4 effort items 5, 4 interest items 1 -> mean 3
+    expect(scoreQuestionnaire(q, fill(q, 5)).score).toBe(3);
+    expect(scoreQuestionnaire(q, [1, 5, 1, 5, 1, 1, 5, 5]).score).toBe(5);
+  });
+  it("GSE sums 10-40", () => {
+    const q = byId("self-efficacy");
+    expect(scoreQuestionnaire(q, fill(q, 3)).score).toBe(30);
   });
 });
 

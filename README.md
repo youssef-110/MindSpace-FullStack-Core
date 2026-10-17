@@ -9,8 +9,8 @@ self-assessments, and results that say what a score means and what it can't tell
 
 | Area | What it does |
 |---|---|
-| **Learn** | 12 lessons (how tests work, Big Five, IQ, personality disorders, mood, ADHD, autism, CBT). Each ends with a 3-question check and links to its test. Progress is saved locally. |
-| **Tests** | 11 instruments, scored in code (see below). Drafts are saved, so a refresh doesn't lose answers. |
+| **Learn** | 20 lessons (how tests work, Big Five, IQ, personality disorders, mood, ADHD, autism, CBT). Each ends with a 3-question check and links to its test. Progress is saved locally. |
+| **Tests** | 16 instruments, scored in code (see below). Drafts are saved, so a refresh doesn't lose answers. |
 | **Results** | A plain-language result, an "accuracy and limitations" section, the change since your last attempt, print/PDF, and an optional AI explanation. |
 | **My results** | History, plus backup export/import (JSON). |
 | **Ask AI** | A learning assistant for concepts and results. It explains; it never scores or diagnoses. |
@@ -47,42 +47,35 @@ npm install
 npm run dev
 ```
 
-`npm run dev` also serves the `/api` functions. For the AI features, copy `.env.example` to `.env` and add a Gemini key
-(free from Google AI Studio):
-
-```
-GEMINI_API_KEY=...
-GEMINI_MODELS=gemini-3.1-flash-lite,gemini-2.5-flash,gemini-flash-latest   # optional, tried in order
-GROQ_API_KEY=...                                                           # optional last fallback
-```
-
-Models are tried in order: if one is rate-limited, slow (8 s for explanations) or down, the next takes over.
-Measured: explanations ≈ 1.5 s (instant when cached), chat starts streaming in ≈ 0.55 s.
-Without any key everything works except the AI explanations and chat, which show a clear fallback.
+`npm run dev` also serves the `/api` functions. Put `GEMINI_API_KEY` in `.env` (see `.env.example`) for the AI.
 
 ```bash
-npm test        # scoring + safety unit tests
+npm test        # scoring and safety unit tests
 npm run lint
 npm run build
 ```
 
+## Accounts, data and AI limits
+
+- **Supabase** (EU, Frankfurt) handles sign-in and stores lesson progress, and test results only with explicit consent.
+  Every table has row-level security; the publishable key in `src/lib/config.js` is public by design.
+- **AI quota** is enforced in the database (`ai_take()`): per-user daily and per-minute limits plus a site-wide daily budget.
+  At 80% of the budget the AI switches to shorter answers and users see a notice; at 100% it pauses until midnight UTC.
+  Change limits with SQL: `update public.ai_settings set user_daily = 25, user_per_minute = 6, global_daily = 900;`
+- **Analytics**: Vercel Web Analytics (cookieless). Turn it on in Vercel: project, Analytics tab, Enable.
+- **Legal**: privacy policy, terms and imprint live in `src/pages/Legal.jsx`. The DPIA and launch checklist are in `docs/DPIA.md`.
+
 ## Deploy (Vercel)
 
-The repo deploys as-is: Vite builds the static site, and `api/*.js` become serverless functions.
-Set `GEMINI_API_KEY` (and optionally `GEMINI_MODELS`, `GROQ_API_KEY`) in the Vercel project's environment variables, then redeploy.
+Vite builds the static site and `api/*.js` become serverless functions. Set `GEMINI_API_KEY` (and optionally
+`GEMINI_MODELS`) in the Vercel project's environment variables. Security headers and the CSP are in `vercel.json`.
 
 ## Architecture
 
 ```
-api/            explain.js · chat.js (timeouts, JSON schema check, cache, rate limit)
-                _prompts.js (every AI prompt, one place) · _llm.js (Gemini → Groq fallback chain)
+api/            explain.js · chat.js · _quota.js (DB-enforced limits) · _llm.js (Gemini model chain) · _prompts.js
 src/lib/tests/  questionnaires.js (items + scoring) · matrix.js (generator + Rasch scoring)
-src/lib/        learn.js (lessons) · storage.js (localStorage) · ai.js (client) · safety.js
-src/pages/      Home · Learn · Lesson · Tests · TakeTest · Result · Results · Ask · Breathe · Help
-brand/          three logo directions (A in use) — see DESIGN.md
+src/lib/        learn.js · storage.js (local-first) · sync.js (account sync) · supabase.js · ai.js · safety.js · config.js
+src/pages/      Home · Learn · Lesson · Tests · TakeTest · Result · Results · Ask · SignIn · Account · Legal · Breathe · Help
+docs/           DPIA.md
 ```
-
-## Privacy
-
-There are no accounts and no database. Results, lesson progress and chat history stay in your browser.
-"Explain with AI" sends only computed scores, never your answers. Ask AI sends the conversation, plus your latest scores only if you tick "Use my latest results", to Google Gemini.

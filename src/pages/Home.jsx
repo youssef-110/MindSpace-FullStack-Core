@@ -6,6 +6,8 @@ import MatrixCell from "../components/MatrixCell";
 import { BLUEPRINTS, generateItem } from "../lib/tests/matrix";
 import { questionnaires, CATEGORIES } from "../lib/tests/questionnaires";
 import { lessons } from "../lib/learn";
+import { getResults, getProgress } from "../lib/storage";
+import { byId } from "../lib/tests/questionnaires";
 
 const ease = [0.22, 1, 0.36, 1];
 
@@ -82,15 +84,51 @@ const STEPS = [
 ];
 
 const FAQ = [
-  ["Is the IQ test accurate?", "It's a practice estimate. The puzzles follow the same logic as Raven's matrices and the scoring uses a proper statistical model, but the difficulty of each puzzle is estimated from its design, not measured on a large norm group. So we show a range, usually about ±13 points, and never call it an official IQ. A real IQ assessment is done one-to-one by a psychologist."],
+  ["Is the IQ test accurate?", "It's a practice estimate. The puzzles follow the same logic as Raven's matrices and the scoring uses a proper statistical model, but the difficulty of each puzzle is estimated from its design, not measured on a large norm group. So we show a range, usually about 13 points either side, and never call it an official IQ. A real IQ assessment is done one-to-one by a psychologist."],
   ["Can a test here diagnose me?", "No. The mood, attention and personality-pattern tests are screeners: they flag whether a professional conversation might be worth having. Only a qualified clinician can diagnose."],
   ["Where do the questions come from?", "Each questionnaire is a published research instrument, such as the IPIP Big Five, PHQ-9 or MSI-BPD, used with its original items, keying and cutoffs. Each test page lists its source."],
-  ["Where is my data stored?", "In your browser only. There are no accounts. Your results never leave your device unless you press 'Explain with AI', which sends just the scores, never your answers."],
-  ["What does the AI do?", "It explains concepts and helps you read a score the site already calculated. It never decides scores or labels, and it won't diagnose."],
+  ["Do I need an account?", "No. Every lesson and test works without one, and your results stay in your browser. A free account adds the AI assistant and, only if you choose, keeps your results and progress across devices."],
+  ["Where is my data stored?", "Without an account, only in your browser. With an account, lesson progress is stored in an EU data centre, and test results only if you explicitly turn that on. Your individual answers never leave your device. The privacy policy has the details."],
+  ["What does the AI do?", "It explains concepts and helps you read a score the site already calculated. It never decides scores or labels, and it won't diagnose. Each account gets a daily number of AI requests so it stays available for everyone."],
 ];
+
+function ContinueStrip({ progress, last }) {
+  const next = lessons.find((l) => !progress[l.id]);
+  const done = Object.keys(progress).length;
+  if (!last && !done) return null;
+  const lastTest = last && byId(last.testId);
+  return (
+    <section aria-label="Your progress" className="mb-6 grid gap-px overflow-hidden rounded-[var(--r-lg)] border border-line bg-line sm:grid-cols-3">
+      <div className="bg-surface p-5">
+        <p className="text-sm text-ink-2">Lessons completed</p>
+        <p className="mt-1 font-display text-3xl font-bold tabular-nums">{done}<span className="text-lg text-ink-2"> / {lessons.length}</span></p>
+      </div>
+      {lastTest ? (
+        <Link to={`/results/${last.id}`} className="group bg-surface p-5">
+          <p className="text-sm text-ink-2">Your latest result</p>
+          <p className="mt-1 font-bold group-hover:text-brand">{lastTest.name}</p>
+          <p className="text-sm text-ink-2">{new Date(last.date).toLocaleDateString()}</p>
+        </Link>
+      ) : (
+        <Link to="/tests" className="group bg-surface p-5"><p className="text-sm text-ink-2">No tests yet</p><p className="mt-1 font-bold group-hover:text-brand">Choose your first test</p></Link>
+      )}
+      {next ? (
+        <Link to={`/learn/${next.id}`} className="group bg-surface p-5">
+          <p className="text-sm text-ink-2">Up next</p>
+          <p className="mt-1 font-bold group-hover:text-brand">{next.title}</p>
+          <p className="text-sm text-ink-2">{next.minutes} min read</p>
+        </Link>
+      ) : (
+        <Link to="/results" className="group bg-surface p-5"><p className="text-sm text-ink-2">Every lesson done</p><p className="mt-1 font-bold group-hover:text-brand">See your progress</p></Link>
+      )}
+    </section>
+  );
+}
 
 export default function Home() {
   const testCount = questionnaires.length;
+  const [progress] = useState(getProgress);
+  const [last] = useState(() => getResults()[0]);
   return (
     <>
       {/* Hero */}
@@ -100,7 +138,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, ease }}
-            className="text-[2.6rem] leading-[1.02] sm:text-6xl lg:text-7xl font-extrabold"
+            className="text-[2.5rem] leading-[1.03] sm:text-[3.4rem] xl:text-[4.1rem] font-extrabold"
           >
             Learn how the mind is measured. Then measure yours.
           </motion.h1>
@@ -125,6 +163,8 @@ export default function Home() {
         </div>
         <HeroPuzzle />
       </section>
+
+      <ContinueStrip progress={progress} last={last} />
 
       {/* How it works */}
       <section className="py-14" aria-labelledby="how">
@@ -171,41 +211,66 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Learning topics */}
+      {/* Learning topics: laid out as a syllabus, because that's what it is */}
       <section className="py-14" aria-labelledby="topics">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <h2 id="topics" className="text-3xl sm:text-4xl font-bold">Learning topics</h2>
-          <Link to="/learn" className="link">All lessons</Link>
+          <h2 id="topics" className="text-3xl sm:text-4xl font-bold">The syllabus</h2>
+          <Link to="/learn" className="link">All {lessons.length} lessons</Link>
         </Reveal>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {lessons.slice(0, 6).map((l) => (
-            <Link key={l.id} to={`/learn/${l.id}`} className="panel p-5 transition-transform hover:-translate-y-0.5">
-              <span className="tag">{l.track}</span>
-              <h3 className="mt-3 text-xl font-bold">{l.title}</h3>
-              <p className="mt-1.5 text-[0.95rem] text-ink-2">{l.summary}</p>
-            </Link>
-          ))}
+        <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
+          {[...new Set(lessons.map((l) => l.track))].map((track) => {
+            const items = lessons.filter((l) => l.track === track);
+            return (
+              <div key={track}>
+                <div className="flex items-baseline justify-between border-b-2 border-ink pb-2">
+                  <h3 className="text-xl font-bold">{track}</h3>
+                  <span className="text-sm text-ink-2">{items.length} lesson{items.length > 1 ? "s" : ""}</span>
+                </div>
+                <ul className="divide-y divide-line">
+                  {items.map((l) => (
+                    <li key={l.id}>
+                      <Link to={`/learn/${l.id}`} className="group flex items-baseline justify-between gap-4 py-3">
+                        <span className="min-w-0">
+                          <span className="font-bold group-hover:text-brand">{l.title}</span>
+                          {progress[l.id] && <span className="sr-only"> (completed)</span>}
+                        </span>
+                        <span className={`shrink-0 text-sm tabular-nums ${progress[l.id] ? "font-bold text-sage" : "text-ink-2"}`}>
+                          {progress[l.id] ? `${progress[l.id].correct}/${progress[l.id].total}` : `${l.minutes} min`}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
         </div>
       </section>
 
-      {/* Trust */}
+      {/* Trust: same page tone, set apart by structure instead of a dark block */}
       <section className="py-14" aria-labelledby="trust">
-        <div className="rounded-[var(--r-lg)] bg-ink text-paper p-6 sm:p-10">
-          <h2 id="trust" className="text-3xl sm:text-4xl font-bold max-w-2xl">What we promise about accuracy, and what we don't</h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-10 border-y border-line py-12 md:grid-cols-[0.9fr_1.1fr]">
+          <div>
+            <h2 id="trust" className="text-3xl sm:text-4xl font-bold">What we promise about accuracy, and what we don't</h2>
+            <p className="mt-4 max-w-md text-ink-2">
+              Most online tests are written for clicks. These are research instruments, scored the way their authors specify, with their limits
+              printed next to every result.
+            </p>
+            <Link to="/learn/how-tests-work" className="btn btn-quiet mt-6">How psychological tests work</Link>
+          </div>
+          <dl className="grid gap-x-8 gap-y-7 sm:grid-cols-2">
             {[
-              ["Real instruments", "Every questionnaire is a published measure with its original items, reverse-keying and cutoffs, and its source on the test page."],
-              ["Scoring you can check", "Scores are calculated by code with 60+ automated tests, never by the AI."],
+              ["Real instruments", "Every questionnaire is a published measure with its original items, reverse-keying and cutoffs. Its source is on the test page."],
+              ["Scoring you can check", "Scores are calculated by code covered by 70+ automated tests, never by the AI."],
               ["Honest uncertainty", "The reasoning test gives a range, not a single IQ number. We don't invent percentiles we can't support."],
               ["No diagnoses", "Screeners say whether a professional conversation might help. They never tell you that you have a condition."],
             ].map(([t, d]) => (
-              <div key={t}>
-                <h3 className="text-lg font-bold text-marigold">{t}</h3>
-                <p className="mt-1 opacity-85">{d}</p>
+              <div key={t} className="border-t border-line pt-4">
+                <dt className="text-lg font-bold">{t}</dt>
+                <dd className="mt-1 text-ink-2">{d}</dd>
               </div>
             ))}
-          </div>
-          <Link to="/learn/how-tests-work" className="btn mt-8 bg-paper text-ink">How psychological tests work</Link>
+          </dl>
         </div>
       </section>
 

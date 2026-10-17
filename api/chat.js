@@ -2,6 +2,7 @@
 // `results` is only sent when the user opts in, and holds computed scores, never answers.
 import { CHAT_SYSTEM, resultsContext } from "./_prompts.js";
 import { llm, hasKey, readJson, sendJson, rateLimited } from "./_llm.js";
+import { takeQuota, quotaHeaders, quotaError } from "./_quota.js";
 import { detectCrisis, CRISIS_MESSAGE } from "../src/lib/safety.js";
 
 export default async function handler(req, res) {
@@ -21,7 +22,9 @@ export default async function handler(req, res) {
   const last = messages.at(-1);
   if (!last || last.role !== "user") return sendJson(res, 400, { error: "Send at least one user message" });
 
-  const shared = Array.isArray(body.results) ? body.results.slice(0, 15) : [];
+  const shared = Array.isArray(body.results)
+    ? body.results.filter((x) => x && typeof x === "object" && typeof x.testId === "string" && x.summary && typeof x.summary === "object").slice(0, 15)
+    : [];
   const context = JSON.stringify(shared).length <= 4000 ? resultsContext(shared) : "";
   const system = context ? `${CHAT_SYSTEM}
 
@@ -29,12 +32,20 @@ The person chose to share their latest results:
 ${context}` : CHAT_SYSTEM;
 
   const crisis = detectCrisis(last.content);
+  const q = hasKey() ? await takeQuota(req) : { ok: true, remaining: 0, limit: 0, saver: false };
+  if (!q.ok && !crisis) return quotaError(res, q);
   res.statusCode = 200;
   res.setHeader("Content-Type", "text/plain; charset=utf-8");
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("X-Crisis", crisis ? "1" : "0");
+  if (q.ok) quotaHeaders(res, q);
   // Crisis resources are added by code, regardless of what the model says.
   if (crisis) res.write(CRISIS_MESSAGE + "\n\n");
+  // Someone in crisis always gets the help lines, even when signed out or out of quota.
+  if (!q.ok) {
+    res.end(q.reason === "auth" ? "(Sign in to keep talking with the AI.)" : `(${q.message})`);
+    return;
+  }
 
   if (!hasKey()) {
     res.end(crisis ? "" : "The AI assistant isn't connected yet. You can still read every lesson and take every test.");
@@ -43,7 +54,7 @@ ${context}` : CHAT_SYSTEM;
 
   let wrote = crisis;
   try {
-    const r = await llm({ max_tokens: 900, stream: true, messages: [{ role: "system", content: system }, ...messages] }, 25000);
+    const r = await llm({ max_tokens: q.saver ? 450 : 900, stream: true, messages: [{ role: "system", content: system }, ...messages] }, 25000);
     const decoder = new TextDecoder();
     let buffer = "";
     for await (const chunk of r.body) {

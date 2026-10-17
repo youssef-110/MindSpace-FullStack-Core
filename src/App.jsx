@@ -1,7 +1,11 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Link, NavLink, useLocation } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
+import { Analytics } from "@vercel/analytics/react";
 import { LogoMark, Icon } from "./components/ui";
+import AuthProvider from "./components/AuthProvider";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { useAuth } from "./lib/auth-context";
 
 const Home = lazy(() => import("./pages/Home"));
 const Learn = lazy(() => import("./pages/Learn"));
@@ -13,6 +17,11 @@ const Results = lazy(() => import("./pages/Results"));
 const Ask = lazy(() => import("./pages/Ask"));
 const Breathe = lazy(() => import("./pages/Breathe"));
 const Help = lazy(() => import("./pages/Help"));
+const SignIn = lazy(() => import("./pages/SignIn"));
+const Account = lazy(() => import("./pages/Account"));
+const Privacy = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Privacy })));
+const Terms = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Terms })));
+const Imprint = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Imprint })));
 
 const NAV = [
   { to: "/", label: "Home", icon: "home", end: true },
@@ -28,6 +37,24 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+}
+
+function AccountButton() {
+  const { user, ready } = useAuth();
+  if (!ready) return <span className="h-11 w-11" aria-hidden="true" />;
+  return user ? (
+    <NavLink
+      to="/account"
+      aria-label="Your account"
+      className={({ isActive }) => `grid h-11 w-11 place-items-center rounded-[10px] border ${isActive ? "border-ink text-ink" : "border-line text-ink-2 hover:text-ink"}`}
+    >
+      <Icon name="user" size={20} />
+    </NavLink>
+  ) : (
+    <Link to="/signin" className="inline-flex h-11 items-center rounded-[10px] border border-line px-3.5 text-[0.95rem] font-bold text-ink hover:border-ink-2">
+      Sign in
+    </Link>
+  );
 }
 
 function TopBar({ dark, setDark }) {
@@ -52,13 +79,16 @@ function TopBar({ dark, setDark }) {
             </NavLink>
           ))}
         </nav>
+        <div className="ml-auto md:ml-2 flex items-center gap-2">
+          <AccountButton />
         <button
           onClick={() => setDark(!dark)}
-          className="ml-auto md:ml-2 grid h-11 w-11 place-items-center rounded-[10px] border border-line text-ink-2 hover:text-ink"
+          className="grid h-11 w-11 place-items-center rounded-[10px] border border-line text-ink-2 hover:text-ink"
           aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
         >
           <Icon name={dark ? "sun" : "moon"} size={20} />
         </button>
+        </div>
       </div>
     </header>
   );
@@ -110,11 +140,14 @@ function Footer() {
             <li><Link to="/tests" className="hover:text-ink">Tests</Link></li>
             <li><Link to="/breathe" className="hover:text-ink">Breathing exercise</Link></li>
             <li><Link to="/learn/how-tests-work" className="hover:text-ink">How our tests work</Link></li>
+            <li><Link to="/privacy" className="hover:text-ink">Privacy policy</Link></li>
+            <li><Link to="/terms" className="hover:text-ink">Terms of use</Link></li>
+            <li><Link to="/imprint" className="hover:text-ink">Imprint</Link></li>
           </ul>
         </div>
         <div className="text-sm">
           <h2 className="font-sans text-sm font-bold mb-2">Need to talk to someone?</h2>
-          <p className="text-ink-2">Call or text <strong className="text-ink">988</strong> (US), text HOME to 741741, or your local emergency number.</p>
+          <p className="text-ink-2">In the EU, call <strong className="text-ink">112</strong> in an emergency. In the US, call or text <strong className="text-ink">988</strong>. Other countries: findahelpline.com.</p>
           <Link to="/help" className="link mt-2 inline-block">Get help</Link>
         </div>
       </div>
@@ -144,11 +177,13 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
+      <AuthProvider>
       <BrowserRouter>
         <ScrollToTop />
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-50 btn btn-primary">Skip to content</a>
         <TopBar dark={dark} setDark={setDark} />
         <main id="main" className="mx-auto max-w-6xl px-4 pb-24 md:pb-0">
+          <ErrorBoundary>
           <Suspense fallback={<div className="py-32" aria-busy="true" />}>
             <Routes>
               <Route path="/" element={<Home />} />
@@ -161,13 +196,21 @@ export default function App() {
               <Route path="/ask" element={<Ask />} />
               <Route path="/breathe" element={<Breathe />} />
               <Route path="/help" element={<Help />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/imprint" element={<Imprint />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
+          </ErrorBoundary>
         </main>
         <Footer />
         <BottomTabs />
+        <Analytics />
       </BrowserRouter>
+      </AuthProvider>
     </MotionConfig>
   );
 }

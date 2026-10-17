@@ -10,6 +10,11 @@ const AGREE_4 = ["Strongly agree", "Agree", "Disagree", "Strongly disagree"];
 const AQ_4 = ["Definitely agree", "Slightly agree", "Slightly disagree", "Definitely disagree"];
 const ASRS_0_4 = ["Never", "Rarely", "Sometimes", "Often", "Very often"];
 const YES_NO = ["No", "Yes"];
+const SWLS_1_7 = ["Strongly disagree", "Disagree", "Slightly disagree", "Neither agree nor disagree", "Slightly agree", "Agree", "Strongly agree"];
+const BRS_1_5 = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"];
+const UCLA_1_3 = ["Hardly ever", "Some of the time", "Often"];
+const GSE_1_4 = ["Not at all true", "Hardly true", "Moderately true", "Exactly true"];
+const GRIT_5_1 = ["Very much like me", "Mostly like me", "Somewhat like me", "Not much like me", "Not like me at all"];
 
 // ---------------- IPIP Big-Five Factor Markers (50 items, Goldberg 1992, public domain) ----------------
 // [text, trait, keying]. Trait N is scored as Neuroticism (the reverse of IPIP "Emotional Stability").
@@ -39,6 +44,7 @@ export const CATEGORIES = [
   { id: "cognitive", name: "Reasoning", blurb: "Pattern-finding under time pressure." },
   { id: "patterns", name: "Personality patterns", blurb: "Screeners for long-standing difficulties. Not diagnoses." },
   { id: "wellbeing", name: "Mood & wellbeing", blurb: "How the last few weeks have been." },
+  { id: "strengths", name: "Strengths & motivation", blurb: "How you bounce back, keep going and trust your own ability." },
   { id: "neuro", name: "Attention & social style", blurb: "Screeners for ADHD and autistic traits in adults." },
 ];
 
@@ -293,6 +299,164 @@ export const questionnaires = [
     },
   },
   {
+    id: "swls",
+    category: "wellbeing",
+    name: "Life satisfaction",
+    instrument: "Satisfaction With Life Scale (SWLS), 5 items",
+    minutes: 1,
+    lesson: "wellbeing",
+    measures: "How satisfied you are with your life as a whole, judged by your own standards.",
+    cannot: "It's a global judgement: it doesn't say which parts of life (work, relationships, health) drive the score.",
+    source: "Diener, E., Emmons, R. A., Larsen, R. J., & Griffin, S. (1985). Journal of Personality Assessment, 49, 71-75. Free to use. Bands from Pavot & Diener (2008).",
+    intro: "How much do you agree with each statement?",
+    options: SWLS_1_7.map((label, i) => ({ label, value: i + 1 })),
+    items: [
+      "In most ways my life is close to my ideal.",
+      "The conditions of my life are excellent.",
+      "I am satisfied with my life.",
+      "So far I have gotten the important things I want in life.",
+      "If I could live my life over, I would change almost nothing.",
+    ],
+    scoring: {
+      type: "sum",
+      min: 5,
+      max: 35,
+      bands: [
+        { max: 9, level: "Extremely dissatisfied", tone: "alert", text: "Very low satisfaction often means several areas of life are going badly at once. Talking it through with someone can help you find a first step." },
+        { max: 14, level: "Dissatisfied", tone: "warn", text: "You're substantially unhappy with your life right now. It's worth looking at what has changed and what you can influence." },
+        { max: 19, level: "Slightly dissatisfied", tone: "warn", text: "Small but real dissatisfaction, often in one or two areas. Naming them is a useful start." },
+        { max: 20, level: "Neutral", tone: "ok", text: "Satisfied and dissatisfied in roughly equal measure." },
+        { max: 25, level: "Slightly satisfied", tone: "ok", text: "The typical range in most high-income countries: generally satisfied, with areas you'd like to improve." },
+        { max: 30, level: "Satisfied", tone: "good", text: "You like your life. Most areas are going well." },
+        { max: 35, level: "Highly satisfied", tone: "good", text: "You love your life and feel things are going very well." },
+      ],
+    },
+  },
+  {
+    id: "loneliness",
+    category: "wellbeing",
+    name: "Loneliness",
+    instrument: "Three-Item Loneliness Scale (UCLA-3)",
+    minutes: 1,
+    lesson: "loneliness",
+    measures: "How often you feel a lack of companionship, left out, or isolated.",
+    cannot: "Loneliness is a feeling, not a count of friends: the score doesn't measure how many people you see.",
+    source: "Hughes, M. E., Waite, L. J., Hawkley, L. C., & Cacioppo, J. T. (2004). Research on Aging, 26, 655-672. Free to use. Scores of 6 or more are commonly used to indicate loneliness.",
+    intro: "How often do you feel…",
+    options: UCLA_1_3.map((label, i) => ({ label, value: i + 1 })),
+    items: ["…that you lack companionship?", "…left out?", "…isolated from others?"],
+    scoring: {
+      type: "sum",
+      min: 3,
+      max: 9,
+      bands: [
+        { max: 5, level: "Not lonely", tone: "good", text: "You rarely feel isolated. Connection seems to be working for you." },
+        { max: 9, level: "Lonely", tone: "warn", text: "You often feel isolated or left out. That's common and painful. Small, regular contact helps more than you'd expect; the loneliness lesson explains why." },
+      ],
+    },
+  },
+  {
+    id: "resilience",
+    category: "strengths",
+    name: "Resilience",
+    instrument: "Brief Resilience Scale (BRS), 6 items",
+    minutes: 1,
+    lesson: "resilience",
+    measures: "How quickly you feel you bounce back from stress and setbacks.",
+    cannot: "It measures your own sense of recovery, not the support or resources around you, which also shape resilience.",
+    source: "Smith, B. W. et al. (2008). International Journal of Behavioral Medicine, 15, 194-200. Mean score 1-5; below 3.00 is low and above 4.30 is high.",
+    intro: "How much do you agree with each statement?",
+    options: BRS_1_5.map((label, i) => ({ label, value: i + 1 })),
+    items: [
+      "I tend to bounce back quickly after hard times.",
+      "I have a hard time making it through stressful events.",
+      "It does not take me long to recover from a stressful event.",
+      "It is hard for me to snap back when something bad happens.",
+      "I usually come through difficult times with little trouble.",
+      "I tend to take a long time to get over set-backs in my life.",
+    ],
+    scoring: {
+      type: "mean",
+      reverse: [1, 3, 5],
+      min: 1,
+      max: 5,
+      bands: [
+        { max: 2.99, level: "Low resilience", tone: "warn", text: "Setbacks tend to stay with you for a while. Resilience is learnable: sleep, support and coping skills all shift it." },
+        { max: 4.3, level: "Normal resilience", tone: "ok", text: "You recover from stress about as well as most people." },
+        { max: 5, level: "High resilience", tone: "good", text: "You tend to bounce back quickly from hard times." },
+      ],
+    },
+  },
+  {
+    id: "self-efficacy",
+    category: "strengths",
+    name: "Self-efficacy",
+    instrument: "General Self-Efficacy Scale (GSE), 10 items",
+    minutes: 2,
+    lesson: "motivation",
+    measures: "Your belief that you can handle difficult problems and unexpected events through your own effort.",
+    cannot: "It measures belief, not actual skill, and the belief can differ a lot between areas of life.",
+    source: "Schwarzer, R., & Jerusalem, M. (1995). Generalized Self-Efficacy Scale. Free to use. Across 25 countries the average score was about 29 (Scholz et al., 2002).",
+    intro: "How true is each statement for you?",
+    options: GSE_1_4.map((label, i) => ({ label, value: i + 1 })),
+    items: [
+      "I can always manage to solve difficult problems if I try hard enough.",
+      "If someone opposes me, I can find the means and ways to get what I want.",
+      "It is easy for me to stick to my aims and accomplish my goals.",
+      "I am confident that I could deal efficiently with unexpected events.",
+      "Thanks to my resourcefulness, I know how to handle unforeseen situations.",
+      "I can solve most problems if I invest the necessary effort.",
+      "I can remain calm when facing difficulties because I can rely on my coping abilities.",
+      "When I am confronted with a problem, I can usually find several solutions.",
+      "If I am in trouble, I can usually think of a solution.",
+      "I can usually handle whatever comes my way.",
+    ],
+    scoring: {
+      type: "sum",
+      min: 10,
+      max: 40,
+      bands: [
+        { max: 24, level: "Below average", tone: "warn", text: "You often doubt you can handle hard situations. Small, deliberate wins are the best-known way to build this belief." },
+        { max: 33, level: "Around average", tone: "ok", text: "Most people score here: you trust yourself with most challenges." },
+        { max: 40, level: "High", tone: "good", text: "You strongly believe in your ability to cope with what comes." },
+      ],
+    },
+  },
+  {
+    id: "grit",
+    category: "strengths",
+    name: "Grit",
+    instrument: "Short Grit Scale (Grit-S), 8 items",
+    minutes: 2,
+    lesson: "motivation",
+    measures: "Perseverance and consistency of interest towards long-term goals.",
+    cannot: "Grit overlaps heavily with conscientiousness and predicts success less than early claims suggested. It says nothing about which goals are worth pursuing.",
+    source: "Duckworth, A. L., & Quinn, P. D. (2009). Journal of Personality Assessment, 91, 166-174. Free for non-commercial use. Mean score 1-5.",
+    intro: "How much is each statement like you?",
+    options: GRIT_5_1.map((label, i) => ({ label, value: 5 - i })),
+    items: [
+      "New ideas and projects sometimes distract me from previous ones.",
+      "Setbacks don't discourage me.",
+      "I have been obsessed with a certain idea or project for a short time but later lost interest.",
+      "I am a hard worker.",
+      "I often set a goal but later choose to pursue a different one.",
+      "I have difficulty maintaining my focus on projects that take more than a few months to complete.",
+      "I finish whatever I begin.",
+      "I am diligent.",
+    ],
+    scoring: {
+      type: "mean",
+      reverse: [0, 2, 4, 5],
+      min: 1,
+      max: 5,
+      bands: [
+        { max: 2.49, level: "Lower grit", tone: "ok", text: "Your interests shift and long projects are hard to sustain. That can also mean curiosity and flexibility; pick one goal that really matters and protect it." },
+        { max: 3.74, level: "Moderate grit", tone: "ok", text: "You stick with some long-term goals and drift from others, like most people." },
+        { max: 5, level: "High grit", tone: "good", text: "You keep going on long-term goals and stay interested in them." },
+      ],
+    },
+  },
+  {
     id: "asrs",
     category: "neuro",
     name: "Adult ADHD screen",
@@ -368,12 +532,23 @@ export function scoreQuestionnaire(q, answers) {
     return { type: "traits", traits, riskFlag };
   }
 
+  if (s.type === "mean") {
+    const maxOpt = Math.max(...q.options.map((o) => o.value));
+    const minOpt = Math.min(...q.options.map((o) => o.value));
+    const total = answers.reduce((acc, v, i) => acc + (s.reverse?.includes(i) ? maxOpt + minOpt - v : v), 0);
+    const score = Math.round((total / answers.length) * 100) / 100;
+    const band = s.bands.find((b) => score <= b.max) ?? s.bands.at(-1);
+    return { type: "sum", score, min: s.min, max: s.max, band, riskFlag };
+  }
+
   if (s.type === "sum") {
     const maxOpt = Math.max(...q.options.map((o) => o.value));
-    const raw = answers.reduce((acc, v, i) => acc + (s.reverse?.includes(i) ? maxOpt - v : v), 0);
+    const minOpt = Math.min(...q.options.map((o) => o.value));
+    // Reverse-keyed items flip within the option range (works for 0-based and 1-based scales).
+    const raw = answers.reduce((acc, v, i) => acc + (s.reverse?.includes(i) ? maxOpt + minOpt - v : v), 0);
     const score = raw * (s.multiplier ?? 1);
     const band = s.bands.find((b) => score <= b.max) ?? s.bands.at(-1);
-    return { type: "sum", score, max: s.max, band, riskFlag };
+    return { type: "sum", score, min: s.min ?? 0, max: s.max, band, riskFlag };
   }
 
   if (s.type === "threshold") {

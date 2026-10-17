@@ -5,6 +5,10 @@ import { load, save } from "../lib/storage";
 import { detectCrisis } from "../lib/safety";
 import { latestSummaries } from "../lib/summary";
 import { CrisisCallout } from "../components/ui";
+import { QuotaBadge, SignInForAi, AiNotice } from "../components/AiAccess";
+import { useAuth } from "../lib/auth-context";
+import { useAiQuota } from "../lib/useAiQuota";
+import { useAiNotice } from "../lib/useAiNotice";
 
 const STARTERS = [
   "What's the difference between a trait and a type?",
@@ -31,9 +35,14 @@ export default function Ask() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [crisis, setCrisis] = useState(false);
-  const [shareResults, setShareResults] = useState(() => load("chatShareResults", false));
+  // Not remembered between visits: sharing health-related scores is a fresh choice each time.
+  const [shareResults, setShareResults] = useState(false);
   const [available] = useState(() => latestSummaries());
   const endRef = useRef(null);
+  const { user, ready } = useAuth();
+  const quota = useAiQuota();
+  const [noticeAccepted, acceptNotice] = useAiNotice();
+  const canSend = Boolean(user) && noticeAccepted && !busy && quota?.remaining !== 0 && !quota?.globalExhausted;
 
   useEffect(() => {
     save("chat", messages.slice(-30));
@@ -42,7 +51,7 @@ export default function Ask() {
 
   async function send(text) {
     const content = text.trim();
-    if (!content || busy) return;
+    if (!content || !canSend) return;
     if (detectCrisis(content)) setCrisis(true);
     const history = [...messages, { role: "user", content }];
     setMessages([...history, { role: "assistant", content: "" }]);
@@ -58,7 +67,12 @@ export default function Ask() {
       if (flagged) setCrisis(true);
     } catch (e) {
       setError(e.message);
-      setMessages((m) => (m.at(-1)?.content ? m : m.slice(0, -1)));
+      // If nothing came back, remove the question from the thread and put it back in the box.
+      setMessages((m) => {
+        if (m.at(-1)?.content) return m;
+        setInput(content);
+        return m.slice(0, -2);
+      });
     } finally {
       setBusy(false);
     }
@@ -82,16 +96,13 @@ export default function Ask() {
             type="checkbox"
             className="mt-1 h-5 w-5 accent-[var(--brand)]"
             checked={shareResults}
-            onChange={(e) => {
-              setShareResults(e.target.checked);
-              save("chatShareResults", e.target.checked);
-            }}
+            onChange={(e) => setShareResults(e.target.checked)}
           />
           <span>
             <span className="font-bold">Use my latest results</span>
             <span className="block text-sm text-ink-2">
-              Lets the AI see the scores from your {available.length} most recent test{available.length > 1 ? "s" : ""} (never your answers), so you can ask things like
-              "what do my results say together?"
+              Sends the scores from your {available.length} most recent test{available.length > 1 ? "s" : ""} (never your answers) to Google Gemini with your
+              messages, so you can ask "what do my results say together?". Some of these scores relate to mental health.
             </span>
           </span>
         </label>
@@ -103,7 +114,7 @@ export default function Ask() {
         {messages.length === 0 && (
           <div className="grid gap-2 sm:grid-cols-2">
             {(available.length && shareResults ? ["What do my results say when you put them together?", ...STARTERS.slice(0, 3)] : STARTERS).map((s) => (
-              <button key={s} onClick={() => send(s)} className="panel p-4 text-left text-[0.95rem] font-bold hover:border-ink-2">{s}</button>
+              <button key={s} onClick={() => send(s)} disabled={!canSend} className="panel p-4 text-left text-[0.95rem] font-bold enabled:hover:border-ink-2 disabled:opacity-60 disabled:cursor-not-allowed">{s}</button>
             ))}
           </div>
         )}
@@ -120,8 +131,14 @@ export default function Ask() {
         <div ref={endRef} />
       </div>
 
+      <div className="mt-6 space-y-3">
+        {ready && !user && <SignInForAi what="chat with the AI" />}
+        {user && !noticeAccepted && <AiNotice onAccept={acceptNotice} />}
+        {user && <QuotaBadge quota={quota} />}
+      </div>
+
       <form
-        className="sticky bottom-[calc(66px+env(safe-area-inset-bottom))] md:bottom-4 mt-6 flex gap-2 rounded-[var(--r-md)] border border-line bg-surface p-2 shadow-[var(--shadow)]"
+        className="sticky bottom-[calc(66px+env(safe-area-inset-bottom))] md:bottom-4 mt-3 flex gap-2 rounded-[var(--r-md)] border border-line bg-surface p-2 shadow-[var(--shadow)] focus-within:border-brand"
         onSubmit={(e) => { e.preventDefault(); send(input); }}
       >
         <label htmlFor="ask-input" className="sr-only">Your question</label>
@@ -130,14 +147,16 @@ export default function Ask() {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           maxLength={2000}
-          placeholder="Ask about a concept or a result"
-          className="min-h-[48px] flex-1 bg-transparent px-3 outline-none"
+          placeholder={user ? "Ask about a concept or a result" : "Sign in to ask a question"}
+          disabled={!user}
+          className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-base"
           autoComplete="off"
+          enterKeyHint="send"
         />
-        <button className="btn btn-primary" disabled={busy || !input.trim()}>Send</button>
+        <button className="btn btn-primary" disabled={!canSend || !input.trim()}>Send</button>
       </form>
       <p className="mt-3 text-xs text-ink-2">
-        AI answers can be wrong. Conversations are saved only in this browser. Not for emergencies: <Link to="/help" className="link">get help now</Link>.
+        AI answers can be wrong. Conversations are saved only in this browser and are processed by Google Gemini to generate replies. Not for emergencies: <Link to="/help" className="link">get help now</Link>.
       </p>
     </div>
   );

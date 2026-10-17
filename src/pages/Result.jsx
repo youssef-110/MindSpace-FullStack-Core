@@ -5,6 +5,10 @@ import { byId } from "../lib/tests/questionnaires";
 import { getResult, getResults, deleteResult } from "../lib/storage";
 import { explainResult } from "../lib/ai";
 import { summarize } from "../lib/summary";
+import { useAuth } from "../lib/auth-context";
+import { useAiQuota } from "../lib/useAiQuota";
+import { useAiNotice } from "../lib/useAiNotice";
+import { QuotaBadge, SignInForAi, AiNotice } from "../components/AiAccess";
 import { CrisisCallout, Meter, Icon } from "../components/ui";
 
 const TONE = { good: "text-sage", ok: "text-ink", warn: "text-amber", alert: "text-rose" };
@@ -59,7 +63,7 @@ function Score({ test, r }) {
       <div>
         <p className="font-display text-6xl font-extrabold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
         <p className={`mt-2 text-2xl font-bold ${TONE[r.band.tone]}`}>{r.band.level}</p>
-        <div className="mt-4"><Meter value={r.score} max={r.max} /></div>
+        <div className="mt-4"><Meter value={r.score} min={r.min ?? 0} max={r.max} label={`${r.score} on a scale from ${r.min ?? 0} to ${r.max}`} /></div>
         <p className="mt-4 text-lg">{r.band.text}</p>
       </div>
     );
@@ -68,17 +72,17 @@ function Score({ test, r }) {
     return (
       <div>
         <p className="font-display text-6xl font-extrabold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
-        <p className="mt-2 text-2xl font-bold">{r.positive ? "At or above the screening threshold" : "Below the screening threshold"}</p>
+        <p className="mt-2 text-2xl font-bold">{r.positive ? "At or above the research cut-off" : "Below the research cut-off"}</p>
         <div className="mt-4"><Meter value={r.score} max={r.max} cutoff={r.cutoff} label={`${r.score} of ${r.max}, threshold ${r.cutoff}`} /></div>
-        <p className="mt-1 text-sm text-ink-2">The line marks the threshold of {r.cutoff}.</p>
+        <p className="mt-1 text-sm text-ink-2">The line marks the cut-off of {r.cutoff} used in the original research.</p>
         <p className="mt-4 text-lg">
           {r.positive
             ? test.sensitive
-              ? "You reported several patterns that screeners pick up. This does not mean you have a personality disorder: many people above this line don't, especially during periods of stress, low mood or big life changes. If these patterns cause you real difficulty, talking them through with a psychologist or doctor is a good next step."
-              : "Your answers match the pattern this screener is designed to flag. That's a reason to consider a professional assessment, not a diagnosis."
+              ? "Your score is at or above the cut-off the authors used. In their studies, people scoring this high were more often found to have long-standing personality difficulties when a clinician assessed them, but many were not, especially during stress, low mood or big life changes. A questionnaire can't tell which applies to you."
+              : "Your score is at or above the cut-off the authors used in their research. In their studies, people scoring this high were more likely to meet criteria when assessed by a clinician, but this score is not an assessment of you."
             : test.sensitive
-              ? "You reported fewer of the patterns this screener looks for. If something still troubles you, that matters more than any score; a professional can help."
-              : "Your answers don't match the pattern this screener flags. Screeners do miss some people, so if you still have concerns, it's fine to ask a professional."}
+              ? "Your score is below the cut-off the authors used. If something still troubles you, that matters more than any score."
+              : "Your score is below the cut-off the authors used in their research. Questionnaires like this miss some people, so a low score doesn't rule anything out."}
         </p>
       </div>
     );
@@ -88,7 +92,7 @@ function Score({ test, r }) {
       <div>
         <p className="text-ink-2 font-bold">Practice estimate</p>
         <p className="font-display text-6xl font-extrabold tabular-nums">{r.estimate}</p>
-        <p className="mt-1 text-lg">Likely range {r.low}–{r.high} · {r.correct} of {r.total} correct{r.seconds ? ` · ${r.seconds < 60 ? "under 1" : Math.round(r.seconds / 60)} min` : ""}</p>
+        <p className="mt-1 text-lg">Likely range {r.low} to {r.high}. {r.correct} of {r.total} correct{r.seconds ? ` in ${r.seconds < 60 ? "under a minute" : `${Math.round(r.seconds / 60)} min`}` : ""}.</p>
         <div className="mt-6"><BellCurve low={r.low} high={r.high} estimate={r.estimate} /></div>
         <p className="mt-4 text-ink-2">
           The shaded band is a 90% range. On this scale, 100 is the intended average and two in three people fall between 85 and 115. Because our
@@ -101,22 +105,43 @@ function Score({ test, r }) {
 }
 
 function AiExplain({ entry }) {
+  const { user, ready } = useAuth();
+  const quota = useAiQuota();
+  const [noticeAccepted, acceptNotice] = useAiNotice();
   const [state, setState] = useState({ status: "idle" });
+  // Mood, personality-pattern and neurodiversity scores relate to health: confirm each time they're sent.
+  const healthRelated = ["wellbeing", "patterns", "neuro"].includes(byId(entry.testId)?.category);
+  const [sendOk, setSendOk] = useState(!healthRelated);
   const run = async () => {
     setState({ status: "loading" });
-    const t0 = performance.now();
     try {
       const data = await explainResult(entry.testId, summarize(entry.result));
-      setState({ status: "done", data, ms: Math.round(performance.now() - t0) });
+      setState({ status: "done", data });
     } catch (e) {
-      setState({ status: "error", message: e.message });
+      setState({ status: "error", message: e.message, retry: !["user", "global", "auth"].includes(e.reason) });
     }
   };
+  const blocked = quota?.remaining === 0 || quota?.globalExhausted;
   return (
-    <section className="panel p-5 sm:p-6 no-print" aria-labelledby="ai">
+    <section className="rounded-[var(--r-lg)] border border-line bg-surface p-5 sm:p-6 no-print" aria-labelledby="ai">
       <h2 id="ai" className="text-xl font-bold">Explain this result in plain words</h2>
       <p className="mt-1 text-sm text-ink-2">Sends only the scores above to the AI, never your answers. The AI can't change your score.</p>
-      {state.status === "idle" && <button className="btn btn-primary mt-4" onClick={run}>Explain with AI</button>}
+      <div className="mt-4 space-y-3">
+        {ready && !user && <SignInForAi what="get an AI explanation" />}
+        {user && !noticeAccepted && <AiNotice onAccept={acceptNotice} />}
+        {user && noticeAccepted && state.status === "idle" && (
+          <>
+            {healthRelated && (
+              <label className="flex items-start gap-3 text-[0.95rem]">
+                <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[var(--brand)]" checked={sendOk} onChange={(e) => setSendOk(e.target.checked)} />
+                <span>Send these scores, which relate to mental health, to Google Gemini to get an explanation.</span>
+              </label>
+            )}
+            <button className="btn btn-primary" onClick={run} disabled={blocked || !sendOk}>Explain with AI</button>
+            <QuotaBadge quota={quota} />
+          </>
+        )}
+      </div>
       {state.status === "loading" && (
         <div className="mt-4 space-y-2" aria-busy="true" aria-label="Loading explanation">
           {[90, 75, 82].map((w) => <div key={w} className="h-4 animate-pulse rounded bg-sunken" style={{ width: `${w}%` }} />)}
@@ -124,9 +149,9 @@ function AiExplain({ entry }) {
       )}
       {state.status === "error" && (
         <div className="mt-4">
-          <p className="text-rose font-bold">{state.message}</p>
+          <p className="font-bold text-rose" role="alert">{state.message}</p>
           <p className="mt-1 text-sm text-ink-2">Your result above is complete without it.</p>
-          <button className="btn btn-quiet mt-3" onClick={run}>Try again</button>
+          {state.retry && <button className="btn btn-quiet mt-3" onClick={run}>Try again</button>}
         </div>
       )}
       {state.status === "done" && (
@@ -134,7 +159,7 @@ function AiExplain({ entry }) {
           <p>{state.data.summary}</p>
           <ul className="list-disc space-y-1.5 pl-5">{state.data.points.map((p) => <li key={p}>{p}</li>)}</ul>
           <p className="text-sm text-ink-2">{state.data.caution}</p>
-          <p className="text-xs text-ink-2">AI-written, may contain mistakes{state.ms < 200 ? " · loaded from cache" : ""}.</p>
+          <p className="text-xs text-ink-2">Written by AI and may contain mistakes.{state.data.cached ? " Loaded from cache, so it didn't use a request." : ""}</p>
         </motion.div>
       )}
     </section>
@@ -170,8 +195,8 @@ export default function Result() {
         {previous && prevValue !== undefined && value !== undefined && (
           <p className="mt-6 border-t border-line pt-4 text-ink-2">
             Last time ({fmtDate(previous.date)}): <strong className="text-ink">{prevValue}</strong>
-            {value !== prevValue && <> — {value > prevValue ? "up" : "down"} {Math.abs(value - prevValue)}</>}
-            {value === prevValue && " — no change"}
+            {value !== prevValue && <>, {value > prevValue ? "up" : "down"} {Math.round(Math.abs(value - prevValue) * 100) / 100}</>}
+            {value === prevValue && ", no change"}
           </p>
         )}
       </motion.section>

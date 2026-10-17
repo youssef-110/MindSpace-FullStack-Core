@@ -1,11 +1,10 @@
 // Shared helpers for the serverless functions: an LLM call with a provider/model fallback
 // chain, body parsing, a small cache and a best-effort rate limit.
 //
-// Every provider speaks the OpenAI chat-completions format. Gemini models are tried first,
-// in order; each has its own free-tier quota, so a 429 on one simply moves to the next.
+// Gemini models are tried in order through the OpenAI-compatible endpoint; a 429 or timeout on one
+// moves to the next. Only providers named in the privacy policy may be added here.
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 const DEFAULT_GEMINI = "gemini-3.1-flash-lite,gemini-2.5-flash,gemini-flash-latest";
 
 function chain() {
@@ -17,8 +16,6 @@ function chain() {
       out.push({ url: GEMINI_URL, key: gemini, model, extra: { reasoning_effort: "none" } });
     }
   }
-  const groq = process.env.GROQ_API_KEY?.trim();
-  if (groq) out.push({ url: GROQ_URL, key: groq, model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile", extra: {} });
   return out;
 }
 

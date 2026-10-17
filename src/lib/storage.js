@@ -1,5 +1,5 @@
-// Everything stays in this browser's localStorage. Nothing is sent to a server
-// except what the user explicitly asks the AI to explain.
+// Local-first storage in this browser's localStorage. When the user is signed in, the
+// account sync (src/lib/sync.js) listens for the events below and mirrors changes.
 
 const PREFIX = "mindspace:";
 
@@ -21,6 +21,18 @@ export function save(key, value) {
   }
 }
 
+const emit = (name, detail) => {
+  if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(name, { detail }));
+};
+
+export function remove(key) {
+  try {
+    localStorage.removeItem(PREFIX + key);
+  } catch {
+    /* storage unavailable: nothing to remove */
+  }
+}
+
 // ---------------- Test results ----------------
 
 export const getResults = () => load("results", []);
@@ -28,6 +40,7 @@ export const getResults = () => load("results", []);
 export function saveResult(testId, result) {
   const entry = { id: `${testId}-${Date.now()}`, testId, date: new Date().toISOString(), result };
   save("results", [entry, ...getResults()].slice(0, 300));
+  emit("mindspace:result-saved", entry);
   return entry;
 }
 
@@ -35,6 +48,7 @@ export const getResult = (id) => getResults().find((r) => r.id === id);
 
 export function deleteResult(id) {
   save("results", getResults().filter((r) => r.id !== id));
+  emit("mindspace:result-deleted", id);
 }
 
 // ---------------- Lesson progress ----------------
@@ -44,7 +58,15 @@ export const getProgress = () => load("progress", {});
 export function saveQuizScore(lessonId, correct, total) {
   const progress = getProgress();
   const best = Math.max(correct, progress[lessonId]?.correct ?? 0);
-  save("progress", { ...progress, [lessonId]: { correct: best, total, date: new Date().toISOString() } });
+  const entry = { correct: best, total, date: new Date().toISOString() };
+  save("progress", { ...progress, [lessonId]: entry });
+  emit("mindspace:progress-saved", { lessonId, ...entry });
+}
+
+// Removes personal data from this device (used on sign-out when it is safely in the account).
+export function clearDeviceData() {
+  ["results", "progress", "chat", "aiCache", "aiConsent"].forEach(remove);
+  emit("mindspace:device-cleared");
 }
 
 // ---------------- Backup ----------------

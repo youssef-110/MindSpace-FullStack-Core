@@ -3,23 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f4f5fa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#10132a" media="(prefers-color-scheme: dark)" />
-    <meta name="description" content="MindSpace: short psychology lessons and research-based self-assessments (Big Five personality, matrix reasoning, mood and personality-pattern screeners) with honest, plain-language results." />
-    <meta property="og:title" content="MindSpace — learn how the mind is measured" />
+    <title>MindSpace: learn how the mind is measured</title>
+    <meta name="description" content="Short psychology lessons and research-based self-tests: Big Five personality, matrix reasoning, mood, resilience and personality-pattern screeners, with honest plain-language results." />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MindSpace: learn how the mind is measured" />
     <meta property="og:description" content="Psychology lessons and research-based self-tests with honest results. For education and self-reflection, not diagnosis." />
-    <title>MindSpace — learn how the mind is measured</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <!-- Non-blocking font load: the page renders with system fonts if Google Fonts is slow. -->
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <script>
-      // Apply the saved theme before first paint to avoid a flash.
-      try { var t = localStorage.getItem("theme"); if (t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches) document.documentElement.classList.add("dark"); } catch (e) {}
-    </script>
+    <meta property="og:image" content="/og.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <!-- Runs before first paint so the saved theme never flashes. External file keeps the CSP free of inline scripts. -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
+    <noscript>MindSpace needs JavaScript to run the lessons and tests.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
