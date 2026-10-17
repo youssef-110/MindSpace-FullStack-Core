@@ -44,20 +44,22 @@
   --shadow: 0 1px 0 rgba(21, 33, 28, 0.04), 0 10px 28px -18px rgba(21, 33, 28, 0.28);
 }
 
+/* Dark mode is neutral charcoal, not tinted: the green is a light-theme ink colour only.
+   Actions invert to near-white, the way a dark UI should read. */
 html.dark {
-  --paper: #0f1513;
-  --surface: #161e1a;
-  --sunken: #0b100e;
-  --ink: #e9eeea;
-  --ink-2: #a3afa9;
-  --line: #26302b;
-  --brand: #7cc2a3;
-  --brand-ink: #0f1513;
+  --paper: #0e0f11;
+  --surface: #17181b;
+  --sunken: #0a0a0c;
+  --ink: #ececee;
+  --ink-2: #a2a4aa;
+  --line: #2a2c31;
+  --brand: #ececee;
+  --brand-ink: #0e0f11;
   --marigold: #e2a94b;
-  --sage: #7cc2a3;
+  --sage: #8cc7a9;
   --amber: #e9bc63;
   --rose: #f08a80;
-  --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 30px -18px rgba(0, 0, 0, 0.7);
+  --shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 12px 30px -18px rgba(0, 0, 0, 0.8);
 }
 
 @layer base {
