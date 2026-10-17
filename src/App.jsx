@@ -21,7 +21,7 @@ const SignIn = lazy(() => import("./pages/SignIn"));
 const Account = lazy(() => import("./pages/Account"));
 const Privacy = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Privacy })));
 const Terms = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Terms })));
-const Imprint = lazy(() => import("./pages/Legal").then((m) => ({ default: m.Imprint })));
+const Contact = lazy(() => import("./pages/Contact"));
 
 const NAV = [
   { to: "/", label: "Home", icon: "home", end: true },
@@ -46,12 +46,12 @@ function AccountButton() {
     <NavLink
       to="/account"
       aria-label="Your account"
-      className={({ isActive }) => `grid h-11 w-11 place-items-center rounded-[10px] border ${isActive ? "border-ink text-ink" : "border-line text-ink-2 hover:text-ink"}`}
+      className={({ isActive }) => `grid h-11 w-11 place-items-center rounded-[8px] border ${isActive ? "border-ink text-ink" : "border-line text-ink-2 hover:text-ink"}`}
     >
       <Icon name="user" size={20} />
     </NavLink>
   ) : (
-    <Link to="/signin" className="inline-flex h-11 items-center rounded-[10px] border border-line px-3.5 text-[0.95rem] font-bold text-ink hover:border-ink-2">
+    <Link to="/signin" className="inline-flex h-11 items-center rounded-[8px] border border-line px-3.5 text-[0.95rem] font-bold text-ink hover:border-ink-2">
       Sign in
     </Link>
   );
@@ -61,7 +61,7 @@ function TopBar({ dark, setDark }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-paper/85 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
-        <Link to="/" className="flex items-center gap-2.5 font-display text-xl font-bold tracking-tight" aria-label="MindSpace home">
+        <Link to="/" className="flex items-center gap-2.5 font-display text-xl font-semibold tracking-tight" aria-label="MindSpace home">
           <LogoMark size={30} />
           MindSpace
         </Link>
@@ -72,7 +72,7 @@ function TopBar({ dark, setDark }) {
               to={n.to}
               end={n.end}
               className={({ isActive }) =>
-                `rounded-[10px] px-3.5 py-2 text-[0.95rem] font-bold transition-colors ${isActive ? "bg-ink text-paper" : "text-ink-2 hover:text-ink"}`
+                `rounded-[8px] px-3.5 py-2 text-[0.95rem] font-bold transition-colors ${isActive ? "bg-ink text-paper" : "text-ink-2 hover:text-ink"}`
               }
             >
               {n.label}
@@ -83,7 +83,7 @@ function TopBar({ dark, setDark }) {
           <AccountButton />
         <button
           onClick={() => setDark(!dark)}
-          className="grid h-11 w-11 place-items-center rounded-[10px] border border-line text-ink-2 hover:text-ink"
+          className="grid h-11 w-11 place-items-center rounded-[8px] border border-line text-ink-2 hover:text-ink"
           aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
         >
           <Icon name={dark ? "sun" : "moon"} size={20} />
@@ -125,7 +125,7 @@ function Footer() {
     <footer className="border-t border-line mt-20 pb-24 md:pb-0">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-[1.4fr_1fr_1fr]">
         <div>
-          <div className="flex items-center gap-2 font-display text-lg font-bold">
+          <div className="flex items-center gap-2 font-display text-lg font-semibold">
             <LogoMark size={26} /> MindSpace
           </div>
           <p className="mt-3 max-w-sm text-sm text-ink-2">
@@ -134,19 +134,19 @@ function Footer() {
           </p>
         </div>
         <div className="text-sm">
-          <h2 className="font-sans text-sm font-bold mb-2">Explore</h2>
+          <h2 className="font-sans text-sm font-semibold mb-2">Explore</h2>
           <ul className="space-y-1.5 text-ink-2">
             <li><Link to="/learn" className="hover:text-ink">Lessons</Link></li>
             <li><Link to="/tests" className="hover:text-ink">Tests</Link></li>
             <li><Link to="/breathe" className="hover:text-ink">Breathing exercise</Link></li>
             <li><Link to="/learn/how-tests-work" className="hover:text-ink">How our tests work</Link></li>
-            <li><Link to="/privacy" className="hover:text-ink">Privacy policy</Link></li>
+            <li><Link to="/privacy" className="hover:text-ink">Privacy</Link></li>
             <li><Link to="/terms" className="hover:text-ink">Terms of use</Link></li>
-            <li><Link to="/imprint" className="hover:text-ink">Imprint</Link></li>
+            <li><Link to="/contact" className="hover:text-ink">Contact</Link></li>
           </ul>
         </div>
         <div className="text-sm">
-          <h2 className="font-sans text-sm font-bold mb-2">Need to talk to someone?</h2>
+          <h2 className="font-sans text-sm font-semibold mb-2">Need to talk to someone?</h2>
           <p className="text-ink-2">In the EU, call <strong className="text-ink">112</strong> in an emergency. In the US, call or text <strong className="text-ink">988</strong>. Other countries: findahelpline.com.</p>
           <Link to="/help" className="link mt-2 inline-block">Get help</Link>
         </div>
@@ -158,7 +158,7 @@ function Footer() {
 function NotFound() {
   return (
     <div className="py-24 text-center">
-      <h1 className="text-4xl font-bold mb-3">This page is the missing piece</h1>
+      <h1 className="text-4xl font-semibold mb-3">This page is the missing piece</h1>
       <p className="text-ink-2 mb-6">We couldn't find it. It may have moved.</p>
       <Link to="/" className="btn btn-primary">Go to the home page</Link>
     </div>
@@ -200,7 +200,7 @@ export default function App() {
               <Route path="/account" element={<Account />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
-              <Route path="/imprint" element={<Imprint />} />
+              <Route path="/contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

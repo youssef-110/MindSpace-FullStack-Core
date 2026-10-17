@@ -14,7 +14,7 @@ const SYNC_TEXT = { idle: "Not synced yet", syncing: "Syncing…", synced: "Up t
 function Section({ title, children }) {
   return (
     <section className="border-t border-line py-7">
-      <h2 className="text-xl font-bold">{title}</h2>
+      <h2 className="text-xl font-semibold">{title}</h2>
       <div className="mt-3 space-y-3">{children}</div>
     </section>
   );
@@ -38,7 +38,7 @@ function NewPassword({ onDone }) {
     <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
       <label className="block flex-1">
         <span className="text-sm font-bold">New password</span>
-        <input type="password" required minLength={8} autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} className="mt-1.5 block min-h-[48px] w-full rounded-[10px] border border-line bg-surface px-3.5 text-base focus:border-brand" />
+        <input type="password" required minLength={8} autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} className="mt-1.5 block min-h-[48px] w-full rounded-[8px] border border-line bg-surface px-3.5 text-base focus:border-brand" />
       </label>
       <button className="btn btn-quiet" disabled={busy || pw.length < 8}>Save password</button>
       {msg && <p className="text-sm font-bold sm:basis-full" role="status">{msg}</p>}
@@ -96,7 +96,7 @@ export default function Account() {
     const { error } = await supabase.rpc("delete_my_account");
     if (error) {
       setBusy("");
-      return setMsg("Couldn't delete the account. Try again, or contact us from the privacy page.");
+      return setMsg("Couldn't delete the account. Try again, or use the contact form.");
     }
     await supabase.auth.signOut();
     clearDeviceData();
@@ -105,12 +105,12 @@ export default function Account() {
 
   return (
     <div className="mx-auto max-w-2xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-extrabold">Your account</h1>
+      <h1 className="text-4xl sm:text-5xl font-semibold">Your account</h1>
       <p className="mt-2 break-all text-ink-2">{user.email}</p>
 
       {recovery && (
         <div className="mt-6 rounded-[var(--r-md)] border-2 border-brand/40 bg-surface p-5">
-          <h2 className="text-lg font-bold">Choose a new password</h2>
+          <h2 className="text-lg font-semibold">Choose a new password</h2>
           <div className="mt-3"><NewPassword onDone={clearRecovery} /></div>
         </div>
       )}

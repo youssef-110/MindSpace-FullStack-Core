@@ -71,8 +71,9 @@ function HeroPuzzle() {
           ? "Right. Each row holds all three shapes and all three counts. That's fluid reasoning at work."
           : picked !== null
             ? "Not quite. Look at what changes along each row: the shape, and the number."
-            : "Twenty-four of these, getting harder, make up our reasoning test."}
+            : "Twenty-four of these, getting harder, make up our IQ test."}
       </p>
+      <Link to="/tests/matrix" className="btn btn-primary mt-2 w-full">Take the IQ test</Link>
     </motion.div>
   );
 }
@@ -84,7 +85,7 @@ const STEPS = [
 ];
 
 const FAQ = [
-  ["Is the IQ test accurate?", "It's a practice estimate. The puzzles follow the same logic as Raven's matrices and the scoring uses a proper statistical model, but the difficulty of each puzzle is estimated from its design, not measured on a large norm group. So we show a range, usually about 13 points either side, and never call it an official IQ. A real IQ assessment is done one-to-one by a psychologist."],
+  ["How accurate is the IQ test?", "It gives a practice IQ estimate. The puzzles follow the same logic as Raven's matrices and the scoring uses a proper statistical model, but the difficulty of each puzzle is estimated from its design, not measured on a large norm group. So we show a range, usually about 13 points either side, and never call it an official IQ. A real IQ assessment is done one-to-one by a psychologist."],
   ["Can a test here diagnose me?", "No. The mood, attention and personality-pattern tests are screeners: they flag whether a professional conversation might be worth having. Only a qualified clinician can diagnose."],
   ["Where do the questions come from?", "Each questionnaire is a published research instrument, such as the IPIP Big Five, PHQ-9 or MSI-BPD, used with its original items, keying and cutoffs. Each test page lists its source."],
   ["Do I need an account?", "No. Every lesson and test works without one, and your results stay in your browser. A free account adds the AI assistant and, only if you choose, keeps your results and progress across devices."],
@@ -101,7 +102,7 @@ function ContinueStrip({ progress, last }) {
     <section aria-label="Your progress" className="mb-6 grid gap-px overflow-hidden rounded-[var(--r-lg)] border border-line bg-line sm:grid-cols-3">
       <div className="bg-surface p-5">
         <p className="text-sm text-ink-2">Lessons completed</p>
-        <p className="mt-1 font-display text-3xl font-bold tabular-nums">{done}<span className="text-lg text-ink-2"> / {lessons.length}</span></p>
+        <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{done}<span className="text-lg text-ink-2"> / {lessons.length}</span></p>
       </div>
       {lastTest ? (
         <Link to={`/results/${last.id}`} className="group bg-surface p-5">
@@ -134,32 +135,21 @@ export default function Home() {
       {/* Hero */}
       <section className="grid items-center gap-10 py-10 md:grid-cols-[1.15fr_1fr] md:py-20">
         <div>
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, ease }}
-            className="text-[2.5rem] leading-[1.03] sm:text-[3.4rem] xl:text-[4.1rem] font-extrabold"
+          <h1
+            className="text-[2.5rem] leading-[1.03] sm:text-[3.4rem] xl:text-[4.1rem] font-semibold"
           >
             Learn how the mind is measured. Then measure yours.
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.08, ease }}
+          </h1>
+          <p
             className="mt-5 max-w-xl text-lg text-ink-2"
           >
             Bite-sized psychology lessons, {testCount} research-based tests from personality to reasoning, and results that tell you
             the truth, including what a score can't say.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.16, ease }}
-            className="mt-8 flex flex-wrap gap-3"
-          >
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/learn/how-tests-work" className="btn btn-primary">Start with a lesson</Link>
             <Link to="/tests" className="btn btn-quiet">Browse the tests</Link>
-          </motion.div>
+          </div>
         </div>
         <HeroPuzzle />
       </section>
@@ -169,13 +159,13 @@ export default function Home() {
       {/* How it works */}
       <section className="py-14" aria-labelledby="how">
         <Reveal>
-          <h2 id="how" className="text-3xl sm:text-4xl font-bold mb-8">How it works</h2>
+          <h2 id="how" className="text-3xl sm:text-4xl font-semibold mb-8">How it works</h2>
         </Reveal>
         <ol className="grid gap-6 sm:grid-cols-3">
           {STEPS.map(([t, d], i) => (
             <li key={t} className="border-t-2 border-ink pt-4">
-              <span className="font-display text-sm font-bold text-ink-2">Step {i + 1}</span>
-              <h3 className="mt-1 text-2xl font-bold">{t}</h3>
+              <span className="font-display text-sm font-semibold text-ink-2">Step {i + 1}</span>
+              <h3 className="mt-1 text-2xl font-semibold">{t}</h3>
               <p className="mt-2 text-ink-2">{d}</p>
             </li>
           ))}
@@ -185,13 +175,13 @@ export default function Home() {
       {/* Tests */}
       <section className="py-14" aria-labelledby="tests">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <h2 id="tests" className="text-3xl sm:text-4xl font-bold">The tests</h2>
+          <h2 id="tests" className="text-3xl sm:text-4xl font-semibold">The tests</h2>
           <Link to="/tests" className="link">See all {testCount} tests</Link>
         </Reveal>
         <div className="grid gap-x-10 gap-y-8 md:grid-cols-2">
           {CATEGORIES.map((c) => (
             <div key={c.id}>
-              <h3 className="text-xl font-bold">{c.name}</h3>
+              <h3 className="text-xl font-semibold">{c.name}</h3>
               <p className="text-sm text-ink-2 mb-2">{c.blurb}</p>
               <ul className="divide-y divide-line border-y border-line">
                 {questionnaires.filter((q) => q.category === c.id).map((q) => (
@@ -214,7 +204,7 @@ export default function Home() {
       {/* Learning topics: laid out as a syllabus, because that's what it is */}
       <section className="py-14" aria-labelledby="topics">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <h2 id="topics" className="text-3xl sm:text-4xl font-bold">The syllabus</h2>
+          <h2 id="topics" className="text-3xl sm:text-4xl font-semibold">The syllabus</h2>
           <Link to="/learn" className="link">All {lessons.length} lessons</Link>
         </Reveal>
         <div className="grid gap-x-12 gap-y-10 md:grid-cols-2">
@@ -223,7 +213,7 @@ export default function Home() {
             return (
               <div key={track}>
                 <div className="flex items-baseline justify-between border-b-2 border-ink pb-2">
-                  <h3 className="text-xl font-bold">{track}</h3>
+                  <h3 className="text-xl font-semibold">{track}</h3>
                   <span className="text-sm text-ink-2">{items.length} lesson{items.length > 1 ? "s" : ""}</span>
                 </div>
                 <ul className="divide-y divide-line">
@@ -251,7 +241,7 @@ export default function Home() {
       <section className="py-14" aria-labelledby="trust">
         <div className="grid gap-10 border-y border-line py-12 md:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <h2 id="trust" className="text-3xl sm:text-4xl font-bold">What we promise about accuracy, and what we don't</h2>
+            <h2 id="trust" className="text-3xl sm:text-4xl font-semibold">What we promise about accuracy, and what we don't</h2>
             <p className="mt-4 max-w-md text-ink-2">
               Most online tests are written for clicks. These are research instruments, scored the way their authors specify, with their limits
               printed next to every result.
@@ -262,7 +252,7 @@ export default function Home() {
             {[
               ["Real instruments", "Every questionnaire is a published measure with its original items, reverse-keying and cutoffs. Its source is on the test page."],
               ["Scoring you can check", "Scores are calculated by code covered by 70+ automated tests, never by the AI."],
-              ["Honest uncertainty", "The reasoning test gives a range, not a single IQ number. We don't invent percentiles we can't support."],
+              ["Honest uncertainty", "The IQ test gives a range, not a single falsely precise number. We don't invent percentiles we can't support."],
               ["No diagnoses", "Screeners say whether a professional conversation might help. They never tell you that you have a condition."],
             ].map(([t, d]) => (
               <div key={t} className="border-t border-line pt-4">
@@ -276,7 +266,7 @@ export default function Home() {
 
       {/* FAQ */}
       <section className="py-14 max-w-3xl" aria-labelledby="faq">
-        <h2 id="faq" className="text-3xl sm:text-4xl font-bold mb-6">Questions</h2>
+        <h2 id="faq" className="text-3xl sm:text-4xl font-semibold mb-6">Questions</h2>
         <div className="divide-y divide-line border-y border-line">
           {FAQ.map(([q, a]) => (
             <details key={q} className="group py-4">

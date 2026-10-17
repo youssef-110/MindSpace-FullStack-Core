@@ -34,7 +34,7 @@ function Quiz({ lesson }) {
 
   return (
     <section className="mt-12" aria-labelledby="quiz">
-      <h2 id="quiz" className="text-2xl font-bold mb-5">Check your understanding</h2>
+      <h2 id="quiz" className="text-2xl font-semibold mb-5">Check your understanding</h2>
       <ol className="space-y-6">
         {lesson.quiz.map(([q, opts, right, why], qi) => (
           <li key={q} className="panel p-5">
@@ -84,13 +84,13 @@ export default function Lesson() {
       <Link to="/learn" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink">
         <Icon name="back" size={16} /> All lessons
       </Link>
-      <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold">{lesson.title}</h1>
+      <h1 className="mt-4 text-4xl sm:text-5xl font-semibold">{lesson.title}</h1>
       <p className="mt-3 text-lg text-ink-2">{lesson.summary}</p>
 
       <div className="prose-lesson mt-10 space-y-8">
         {lesson.sections.map(([h, body]) => (
           <section key={h}>
-            <h2 className="text-2xl font-bold mb-2">{h}</h2>
+            <h2 className="text-2xl font-semibold mb-2">{h}</h2>
             <p>{body}</p>
           </section>
         ))}
@@ -102,7 +102,7 @@ export default function Lesson() {
         {test && (
           <Link to={`/tests/${test.id}`} className="panel p-5 border-brand/40 hover:border-brand">
             <span className="text-sm text-ink-2">Put it into practice</span>
-            <span className="block text-xl font-bold mt-1">Take the {test.name.toLowerCase()} test</span>
+            <span className="block text-xl font-bold mt-1">{test.cta ?? `Take the ${test.name.toLowerCase()} test`}</span>
             <span className="block text-sm text-ink-2 mt-1">{test.instrument} · {test.minutes} min</span>
           </Link>
         )}

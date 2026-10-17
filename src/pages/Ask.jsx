@@ -82,7 +82,7 @@ export default function Ask() {
     <div className="mx-auto flex max-w-3xl flex-col py-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-4xl sm:text-5xl font-extrabold">Ask AI</h1>
+          <h1 className="text-4xl sm:text-5xl font-semibold">Ask AI</h1>
           <p className="mt-2 text-ink-2">Questions about psychology, the lessons, or what a test measures. It explains; it doesn't diagnose.</p>
         </div>
         {messages.length > 0 && (

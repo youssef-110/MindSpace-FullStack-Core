@@ -5,7 +5,7 @@
 
 @theme {
   --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque Variable", "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
 
   --color-paper: var(--paper);
   --color-surface: var(--surface);
@@ -21,40 +21,42 @@
   --color-rose: var(--rose);
 }
 
+/* Palette: the psychology-lab answer sheet. Graphite ink on cool paper, printed in green "drop-out" ink,
+   with a pencil-yellow mark for the one thing you're asked to find. */
 :root {
-  --paper: #f4f5fa;
+  --paper: #f4f5f1;
   --surface: #ffffff;
-  --sunken: #eceef6;
-  --ink: #171b3a;
-  --ink-2: #4a5072;
-  --line: #dcdfec;
-  --brand: #4b3fc9;
+  --sunken: #eceee9;
+  --ink: #15211c;
+  --ink-2: #4c5853;
+  --line: #d9ded8;
+  --brand: #1f5e4b;
   --brand-ink: #ffffff;
-  --marigold: #f2b54e;
-  --sage: #2f7d6a;
+  --marigold: #d4952b;
+  --sage: #2e7d5b;
   --amber: #8a5a00;
-  --rose: #b4475a;
+  --rose: #b3473f;
 
-  --r-sm: 8px;
-  --r-md: 14px;
-  --r-lg: 22px;
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --shadow: 0 1px 0 rgba(23, 27, 58, 0.04), 0 10px 30px -18px rgba(23, 27, 58, 0.25);
+  --shadow: 0 1px 0 rgba(21, 33, 28, 0.04), 0 10px 28px -18px rgba(21, 33, 28, 0.28);
 }
 
 html.dark {
-  --paper: #10132a;
-  --surface: #181c38;
-  --sunken: #0c0f22;
-  --ink: #eceefa;
-  --ink-2: #a7accb;
-  --line: #2a2f52;
-  --brand: #9c94ff;
-  --brand-ink: #10132a;
-  --marigold: #f2b54e;
-  --sage: #6cc3ac;
-  --amber: #f2c36b;
-  --rose: #f08497;
+  --paper: #0f1513;
+  --surface: #161e1a;
+  --sunken: #0b100e;
+  --ink: #e9eeea;
+  --ink-2: #a3afa9;
+  --line: #26302b;
+  --brand: #7cc2a3;
+  --brand-ink: #0f1513;
+  --marigold: #e2a94b;
+  --sage: #7cc2a3;
+  --amber: #e9bc63;
+  --rose: #f08a80;
   --shadow: 0 1px 0 rgba(0, 0, 0, 0.3), 0 12px 30px -18px rgba(0, 0, 0, 0.7);
 }
 
@@ -70,9 +72,10 @@ html.dark {
     color: var(--ink);
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3 { font-family: var(--font-display); line-height: 1.08; letter-spacing: -0.02em; text-wrap: balance; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; letter-spacing: -0.012em; text-wrap: balance; font-optical-sizing: auto; }
+  h1 { font-weight: 650; }
   p { text-wrap: pretty; }
-  ::selection { background: var(--marigold); color: #171b3a; }
+  ::selection { background: var(--marigold); color: #15211c; }
   :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
   button { cursor: pointer; font: inherit; color: inherit; }
   button, a, [role="button"], [role="tab"], [role="radio"] { touch-action: manipulation; }
@@ -90,7 +93,7 @@ html.dark {
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
     min-height: 48px; padding: 0 1.4rem;
-    border-radius: 12px; font-weight: 700;
+    border-radius: 8px; font-weight: 700;
     transition: transform 0.18s var(--ease-out), background-color 0.2s, border-color 0.2s;
   }
   .btn:active { transform: scale(0.97); }

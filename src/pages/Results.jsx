@@ -9,7 +9,7 @@ function headline(r) {
   if (r.type === "traits") return r.traits.map((t) => `${t.key} ${t.score}`).join("  ");
   if (r.type === "sum") return `${r.score}/${r.max}, ${r.band.level}`;
   if (r.type === "threshold") return `${r.score}/${r.max}, ${r.positive ? "at or above threshold" : "below threshold"}`;
-  if (r.type === "matrix") return `Estimate ${r.estimate} (${r.low} to ${r.high})`;
+  if (r.type === "matrix") return `IQ estimate ${r.estimate} (${r.low} to ${r.high})`;
   return "";
 }
 
@@ -44,21 +44,21 @@ function Overview({ results }) {
       <div className="grid gap-px overflow-hidden rounded-[var(--r-lg)] border border-line bg-line sm:grid-cols-3">
         <div className="bg-surface p-5">
           <p className="text-sm text-ink-2">Lessons completed</p>
-          <p className="mt-1 font-display text-3xl font-bold tabular-nums">{done}<span className="text-lg text-ink-2"> / {lessons.length}</span></p>
+          <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{done}<span className="text-lg text-ink-2"> / {lessons.length}</span></p>
           <div className="mt-3 h-1.5 rounded-full bg-sunken"><div className="h-1.5 rounded-full bg-sage" style={{ width: `${(done / lessons.length) * 100}%` }} /></div>
         </div>
         <div className="bg-surface p-5">
           <p className="text-sm text-ink-2">Different tests taken</p>
-          <p className="mt-1 font-display text-3xl font-bold tabular-nums">{byTest.length}</p>
+          <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{byTest.length}</p>
         </div>
         <div className="bg-surface p-5">
           <p className="text-sm text-ink-2">Results saved</p>
-          <p className="mt-1 font-display text-3xl font-bold tabular-nums">{results.length}</p>
+          <p className="mt-1 font-display text-3xl font-semibold tabular-nums">{results.length}</p>
         </div>
       </div>
       {repeated.length > 0 && (
         <>
-          <h3 className="mt-10 text-xl font-bold">Changes over time</h3>
+          <h3 className="mt-10 text-xl font-semibold">Changes over time</h3>
           <ul className="mt-3 divide-y divide-line border-y border-line">
             {repeated.map((list) => {
               const test = byId(list[0].testId);
@@ -108,7 +108,7 @@ export default function Results() {
 
   return (
     <div className="mx-auto max-w-3xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-extrabold">My results</h1>
+      <h1 className="text-4xl sm:text-5xl font-semibold">My results</h1>
       <p className="mt-3 text-lg text-ink-2">
         {user
           ? consent
@@ -117,11 +117,11 @@ export default function Results() {
           : "Saved only in this browser. Sign in to keep your progress across devices."}
       </p>
       {results.length > 0 && <Overview results={results} />}
-      {results.length > 0 && <h2 className="mt-10 text-xl font-bold">All results</h2>}
+      {results.length > 0 && <h2 className="mt-10 text-xl font-semibold">All results</h2>}
 
       {results.length === 0 ? (
         <div className="panel mt-8 p-8 text-center">
-          <h2 className="text-2xl font-bold">No results yet</h2>
+          <h2 className="text-2xl font-semibold">No results yet</h2>
           <p className="mt-2 text-ink-2">Your first one takes about two minutes.</p>
           <Link to="/tests" className="btn btn-primary mt-5">Choose a test</Link>
         </div>
@@ -146,7 +146,7 @@ export default function Results() {
       )}
 
       <section className="mt-12" aria-labelledby="backup">
-        <h2 id="backup" className="text-xl font-bold">Back up or move your results</h2>
+        <h2 id="backup" className="text-xl font-semibold">Back up or move your results</h2>
         <p className="mt-1 text-ink-2">Clearing your browser data deletes your results. Download a backup file to keep them or move them to another device.</p>
         <div className="mt-4 flex flex-wrap gap-3">
           <button className="btn btn-quiet" onClick={download} disabled={!results.length}>Download backup</button>

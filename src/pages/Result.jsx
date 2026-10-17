@@ -47,7 +47,7 @@ function Score({ test, r }) {
         {r.traits.map((t) => (
           <div key={t.key}>
             <div className="flex items-baseline justify-between gap-4 mb-2">
-              <h3 className="text-xl font-bold">{t.name}</h3>
+              <h3 className="text-xl font-semibold">{t.name}</h3>
               <span className="font-bold tabular-nums">{t.score}<span className="text-ink-2 font-normal"> / 50</span></span>
             </div>
             <Meter value={t.score} min={10} max={50} label={`${t.name}: ${t.score} on a 10 to 50 scale`} />
@@ -61,7 +61,7 @@ function Score({ test, r }) {
   if (r.type === "sum") {
     return (
       <div>
-        <p className="font-display text-6xl font-extrabold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
+        <p className="font-display text-6xl font-semibold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
         <p className={`mt-2 text-2xl font-bold ${TONE[r.band.tone]}`}>{r.band.level}</p>
         <div className="mt-4"><Meter value={r.score} min={r.min ?? 0} max={r.max} label={`${r.score} on a scale from ${r.min ?? 0} to ${r.max}`} /></div>
         <p className="mt-4 text-lg">{r.band.text}</p>
@@ -71,7 +71,7 @@ function Score({ test, r }) {
   if (r.type === "threshold") {
     return (
       <div>
-        <p className="font-display text-6xl font-extrabold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
+        <p className="font-display text-6xl font-semibold tabular-nums">{r.score}<span className="text-2xl text-ink-2 font-bold"> / {r.max}</span></p>
         <p className="mt-2 text-2xl font-bold">{r.positive ? "At or above the research cut-off" : "Below the research cut-off"}</p>
         <div className="mt-4"><Meter value={r.score} max={r.max} cutoff={r.cutoff} label={`${r.score} of ${r.max}, threshold ${r.cutoff}`} /></div>
         <p className="mt-1 text-sm text-ink-2">The line marks the cut-off of {r.cutoff} used in the original research.</p>
@@ -90,8 +90,8 @@ function Score({ test, r }) {
   if (r.type === "matrix") {
     return (
       <div>
-        <p className="text-ink-2 font-bold">Practice estimate</p>
-        <p className="font-display text-6xl font-extrabold tabular-nums">{r.estimate}</p>
+        <p className="text-ink-2 font-bold">Your practice IQ estimate</p>
+        <p className="font-display text-6xl font-semibold tabular-nums">{r.estimate}</p>
         <p className="mt-1 text-lg">Likely range {r.low} to {r.high}. {r.correct} of {r.total} correct{r.seconds ? ` in ${r.seconds < 60 ? "under a minute" : `${Math.round(r.seconds / 60)} min`}` : ""}.</p>
         <div className="mt-6"><BellCurve low={r.low} high={r.high} estimate={r.estimate} /></div>
         <p className="mt-4 text-ink-2">
@@ -124,7 +124,7 @@ function AiExplain({ entry }) {
   const blocked = quota?.remaining === 0 || quota?.globalExhausted;
   return (
     <section className="rounded-[var(--r-lg)] border border-line bg-surface p-5 sm:p-6 no-print" aria-labelledby="ai">
-      <h2 id="ai" className="text-xl font-bold">Explain this result in plain words</h2>
+      <h2 id="ai" className="text-xl font-semibold">Explain this result in plain words</h2>
       <p className="mt-1 text-sm text-ink-2">Sends only the scores above to the AI, never your answers. The AI can't change your score.</p>
       <div className="mt-4 space-y-3">
         {ready && !user && <SignInForAi what="get an AI explanation" />}
@@ -184,7 +184,7 @@ export default function Result() {
         <Link to="/results" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink no-print">
           <Icon name="back" size={16} /> My results
         </Link>
-        <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold">{test.name}</h1>
+        <h1 className="mt-4 text-4xl sm:text-5xl font-semibold">{test.name}</h1>
         <p className="mt-2 text-ink-2">{test.instrument} · {fmtDate(entry.date)}</p>
       </div>
 
@@ -211,7 +211,7 @@ export default function Result() {
       <AiExplain entry={entry} />
 
       <section aria-labelledby="limits">
-        <h2 id="limits" className="text-2xl font-bold">Accuracy and limitations</h2>
+        <h2 id="limits" className="text-2xl font-semibold">Accuracy and limitations</h2>
         <p className="mt-2 text-ink-2">{test.cannot}</p>
         <p className="mt-3 text-sm text-ink-2">{test.source}</p>
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">

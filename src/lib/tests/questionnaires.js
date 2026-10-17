@@ -40,8 +40,8 @@ export const TRAITS = {
 };
 
 export const CATEGORIES = [
+  { id: "cognitive", name: "IQ & reasoning", blurb: "A timed IQ test built from visual pattern puzzles." },
   { id: "personality", name: "Personality", blurb: "Stable patterns in how you think, feel and act." },
-  { id: "cognitive", name: "Reasoning", blurb: "Pattern-finding under time pressure." },
   { id: "patterns", name: "Personality patterns", blurb: "Screeners for long-standing difficulties. Not diagnoses." },
   { id: "wellbeing", name: "Mood & wellbeing", blurb: "How the last few weeks have been." },
   { id: "strengths", name: "Strengths & motivation", blurb: "How you bounce back, keep going and trust your own ability." },
@@ -102,12 +102,13 @@ export const questionnaires = [
   {
     id: "matrix",
     category: "cognitive",
-    name: "Matrix reasoning",
-    instrument: "MindSpace matrices, 24 items, 20 minutes",
+    name: "IQ test",
+    cta: "Take the IQ test",
+    instrument: "Matrix reasoning, 24 timed puzzles",
     minutes: 20,
     lesson: "intelligence",
-    measures: "Fluid reasoning: spotting rules in unfamiliar visual patterns, the kind of task used in Raven's Progressive Matrices.",
-    cannot: "It is a practice estimate, not a validated IQ score. Item difficulties come from the puzzle design, not from testing a norm group, and one 20-minute task can't cover memory, verbal or processing-speed abilities.",
+    measures: "Your IQ, estimated from fluid reasoning: spotting rules in unfamiliar visual patterns, the task used in Raven's Progressive Matrices, one of the best-known IQ tests.",
+    cannot: "The IQ score is a practice estimate, not an official IQ. Item difficulties come from the puzzle design, not from testing a norm group, and one 20-minute task can't cover memory, verbal or processing-speed abilities.",
     source: "Original items generated from rule blueprints in the style of Raven's matrices, with a balanced answer set (Hu et al., 2021, I-RAVEN). Scored with a Rasch model (EAP estimate).",
     items: [],
     scoring: { type: "matrix" },

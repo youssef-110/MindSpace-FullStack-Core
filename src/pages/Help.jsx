@@ -11,7 +11,7 @@ const STEPS = [
 export default function Help() {
   return (
     <div className="mx-auto max-w-3xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-extrabold">Get help</h1>
+      <h1 className="text-4xl sm:text-5xl font-semibold">Get help</h1>
       <p className="mt-3 text-lg text-ink-2">If you might hurt yourself or someone else, or you're in danger, contact one of these now. They're free and confidential.</p>
 
       <ul className="mt-8 grid gap-3 sm:grid-cols-2">
@@ -24,7 +24,7 @@ export default function Help() {
         ))}
       </ul>
 
-      <h2 className="mt-14 text-2xl font-bold">When it isn't an emergency</h2>
+      <h2 className="mt-14 text-2xl font-semibold">When it isn't an emergency</h2>
       <p className="mt-2 text-ink-2">If a result here worried you, or something has been hard for a while, these are good places to start.</p>
       <dl className="mt-6 divide-y divide-line border-y border-line">
         {STEPS.map(([t, d]) => (

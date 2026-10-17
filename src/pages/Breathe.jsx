@@ -55,7 +55,7 @@ function Session({ technique, onExit }) {
         >
           <div className="text-center" aria-live="polite">
             <div className="text-xl font-bold">{label}</div>
-            <div className="font-display text-5xl font-extrabold tabular-nums">{count || secs}</div>
+            <div className="font-display text-5xl font-semibold tabular-nums">{count || secs}</div>
           </div>
         </motion.div>
       </div>
@@ -73,15 +73,15 @@ function Grounding({ onExit }) {
       {!done ? (
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-            <div className="font-display text-7xl font-extrabold text-brand">{grounding[step][0]}</div>
-            <h2 className="mt-2 text-2xl font-bold">{grounding[step][1]}</h2>
+            <div className="font-display text-7xl font-semibold text-brand">{grounding[step][0]}</div>
+            <h2 className="mt-2 text-2xl font-semibold">{grounding[step][1]}</h2>
             <p className="mt-2 mb-8 text-ink-2">{grounding[step][2]}</p>
             <button onClick={() => setStep(step + 1)} className="btn btn-primary w-full">{step === grounding.length - 1 ? "Done" : "Next"}</button>
           </motion.div>
         </AnimatePresence>
       ) : (
         <div>
-          <h2 className="text-2xl font-bold">You're here.</h2>
+          <h2 className="text-2xl font-semibold">You're here.</h2>
           <p className="mt-2 mb-8 text-ink-2">Notice how your body feels now compared with a minute ago. Anchoring yourself is a skill, and you just practised it.</p>
           <button onClick={onExit} className="btn btn-primary w-full">Finish</button>
         </div>
@@ -95,7 +95,7 @@ export default function Breathe() {
   const [session, setSession] = useState(null); // technique | "grounding" | null
   return (
     <div className="mx-auto max-w-4xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-extrabold">Breathe and ground</h1>
+      <h1 className="text-4xl sm:text-5xl font-semibold">Breathe and ground</h1>
       <p className="mt-3 max-w-xl text-lg text-ink-2">Two minutes of slow breathing can calm your body's stress response. Pick one and follow along.</p>
 
       <div className="mt-8">
@@ -103,13 +103,13 @@ export default function Breathe() {
           <div className="grid gap-4 md:grid-cols-3">
             {techniques.map((t) => (
               <button key={t.id} onClick={() => setSession(t)} className="panel p-5 text-left transition-transform hover:-translate-y-0.5">
-                <h2 className="text-xl font-bold">{t.name}</h2>
+                <h2 className="text-xl font-semibold">{t.name}</h2>
                 <p className="mt-1.5 text-[0.95rem] text-ink-2">{t.desc}</p>
                 <span className="tag mt-4">{t.phases.map((p) => p[1]).join("-")} seconds</span>
               </button>
             ))}
             <button onClick={() => setSession("grounding")} className="panel p-5 text-left md:col-span-3 transition-transform hover:-translate-y-0.5">
-              <h2 className="text-xl font-bold">5-4-3-2-1 grounding</h2>
+              <h2 className="text-xl font-semibold">5-4-3-2-1 grounding</h2>
               <p className="mt-1.5 text-[0.95rem] text-ink-2">For panic or spiralling thoughts: anchor yourself to your senses, one at a time.</p>
             </button>
           </div>

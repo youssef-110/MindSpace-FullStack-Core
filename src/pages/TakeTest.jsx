@@ -17,7 +17,7 @@ function Intro({ test, draft, onStart }) {
       <Link to="/tests" className="inline-flex items-center gap-1 text-sm font-bold text-ink-2 hover:text-ink">
         <Icon name="back" size={16} /> All tests
       </Link>
-      <h1 className="mt-4 text-4xl sm:text-5xl font-extrabold">{test.name}</h1>
+      <h1 className="mt-4 text-4xl sm:text-5xl font-semibold">{test.name}</h1>
       <p className="mt-2 text-ink-2">{test.instrument} · about {test.minutes} minutes</p>
 
       <dl className="mt-8 grid gap-6">
@@ -124,7 +124,7 @@ function Questionnaire({ test, initial, onDone }) {
           transition={{ duration: 0.2 }}
           className="mt-4"
         >
-          <legend className="font-display text-2xl sm:text-3xl font-bold leading-snug">{test.items[i]}</legend>
+          <legend className="font-display text-2xl sm:text-3xl font-semibold leading-snug">{test.items[i]}</legend>
           <div className="mt-6 grid gap-2.5">
             {test.options.map((o, k) => (
               <button
