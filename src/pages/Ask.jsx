@@ -137,24 +137,26 @@ export default function Ask() {
         {user && <QuotaBadge quota={quota} />}
       </div>
 
-      <form
-        className="sticky bottom-[calc(66px+env(safe-area-inset-bottom))] md:bottom-4 mt-3 flex gap-2 rounded-[var(--r-md)] border border-line bg-surface p-2 shadow-[var(--shadow)] focus-within:border-brand"
-        onSubmit={(e) => { e.preventDefault(); send(input); }}
-      >
-        <label htmlFor="ask-input" className="sr-only">Your question</label>
-        <input
-          id="ask-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          maxLength={2000}
-          placeholder={user ? "Ask about a concept or a result" : "Sign in to ask a question"}
-          disabled={!user}
-          className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-base"
-          autoComplete="off"
-          enterKeyHint="send"
-        />
-        <button className="btn btn-primary" disabled={!canSend || !input.trim()}>Send</button>
-      </form>
+      {user && (
+        <form
+          className="sticky bottom-[calc(66px+env(safe-area-inset-bottom))] md:bottom-4 mt-3 flex gap-2 rounded-[var(--r-md)] border border-line bg-surface p-2 shadow-[var(--shadow)] focus-within:border-brand"
+          onSubmit={(e) => { e.preventDefault(); send(input); }}
+        >
+          <label htmlFor="ask-input" className="sr-only">Your question</label>
+          <input
+            id="ask-input"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            maxLength={2000}
+            placeholder={user ? "Ask about a concept or a result" : "Sign in to ask a question"}
+            disabled={!user}
+            className="min-h-[48px] min-w-0 flex-1 bg-transparent px-3 text-base"
+            autoComplete="off"
+            enterKeyHint="send"
+          />
+          <button className="btn btn-primary" disabled={!canSend || !input.trim()}>Send</button>
+        </form>
+      )}
       <p className="mt-3 text-xs text-ink-2">
         AI answers can be wrong. Conversations are saved only in this browser and are processed by Google Gemini to generate replies. Not for emergencies: <Link to="/help" className="link">get help now</Link>.
       </p>
