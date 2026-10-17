@@ -65,7 +65,7 @@ export function saveQuizScore(lessonId, correct, total) {
 
 // Removes personal data from this device (used on sign-out when it is safely in the account).
 export function clearDeviceData() {
-  ["results", "progress", "chat", "aiCache", "aiConsent"].forEach(remove);
+  ["results", "progress", "chat", "aiCache", "aiConsent", "owner"].forEach(remove);
   emit("mindspace:device-cleared");
 }
 

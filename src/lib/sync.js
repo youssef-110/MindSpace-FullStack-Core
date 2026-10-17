@@ -1,7 +1,27 @@
 // Keeps this browser's results and lesson progress in step with the signed-in account.
 // Results (health-related data) only leave the device when the user has given explicit consent.
 import { supabase } from "./supabase";
-import { getResults, getProgress, save, load } from "./storage";
+import { getResults, getProgress, save, load, remove } from "./storage";
+
+const PERSONAL_KEYS = ["results", "progress", "chat", "aiCache", "aiConsent"];
+
+// Device data belongs to the last account that signed in here. When a different account signs in,
+// park the previous account's data (restored when it signs back in) so nothing crosses accounts.
+export function claimDevice(userId) {
+  const owner = load("owner", null);
+  if (owner && owner !== userId) {
+    save(`stash:${owner}`, Object.fromEntries(PERSONAL_KEYS.map((k) => [k, load(k, null)])));
+    PERSONAL_KEYS.forEach(remove);
+  }
+  if (owner !== userId) {
+    const mine = load(`stash:${userId}`, null);
+    if (mine) {
+      for (const [k, v] of Object.entries(mine)) if (v !== null) save(k, v);
+      remove(`stash:${userId}`);
+    }
+    save("owner", userId);
+  }
+}
 
 const KNOWN_TYPES = ["traits", "sum", "threshold", "matrix"];
 
@@ -43,6 +63,7 @@ export async function pushProgress(userId, lessonId, p) {
 
 // Two-way merge on sign-in. Nothing is ever deleted here; deletions are explicit actions.
 export async function mergeAll(userId, consent) {
+  claimDevice(userId);
   const [{ data: remoteProgress, error: pErr }, remoteResults] = await Promise.all([
     supabase.from("progress").select("lesson_id, correct, total, updated_at").eq("user_id", userId),
     consent ? supabase.from("results").select("client_id, test_id, taken_at, result").eq("user_id", userId) : Promise.resolve({ data: [] }),
