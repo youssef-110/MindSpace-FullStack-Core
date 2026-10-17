@@ -63,9 +63,17 @@ export function saveQuizScore(lessonId, correct, total) {
   emit("mindspace:progress-saved", { lessonId, ...entry });
 }
 
-// Removes personal data from this device (used on sign-out when it is safely in the account).
+// Removes all MindSpace personal data from this device, including other accounts' parked copies.
 export function clearDeviceData() {
   ["results", "progress", "chat", "aiCache", "aiConsent", "owner"].forEach(remove);
+  // Parked copies of any account's data on this device go too.
+  try {
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith(PREFIX + "stash:"))
+      .forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* storage unavailable: nothing to remove */
+  }
   emit("mindspace:device-cleared");
 }
 

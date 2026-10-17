@@ -167,7 +167,10 @@ export default function Account() {
             <button className="btn btn-quiet" onClick={() => signOut(false)}>Sign out</button>
             <button className="btn btn-quiet" onClick={() => signOut(true)}>Sign out and clear this device</button>
           </div>
-          <p className="text-sm text-ink-2">On a shared device, choose "clear this device" to remove your results, progress and chats from this browser.</p>
+          <p className="text-sm text-ink-2">
+            Signing out hides your results, progress and chats on this device until you sign in again. On a shared device, choose "clear this device" to
+            remove them completely.
+          </p>
         </Section>
 
         <Section title="Delete account">

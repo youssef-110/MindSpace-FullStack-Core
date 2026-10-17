@@ -3,27 +3,40 @@
 import { supabase } from "./supabase";
 import { getResults, getProgress, save, load, remove } from "./storage";
 
+const KNOWN_TYPES = ["traits", "sum", "threshold", "matrix"];
 const PERSONAL_KEYS = ["results", "progress", "chat", "aiCache", "aiConsent"];
 
-// Device data belongs to the last account that signed in here. When a different account signs in,
-// park the previous account's data (restored when it signs back in) so nothing crosses accounts.
-export function claimDevice(userId) {
+const snapshot = () => Object.fromEntries(PERSONAL_KEYS.map((k) => [k, load(k, null)]));
+
+// Signing out parks the account's device data (restored on its next sign-in) and empties the
+// active keys, so anonymous use on this device starts clean and is never tied to that account.
+export function releaseDevice() {
   const owner = load("owner", null);
-  if (owner && owner !== userId) {
-    save(`stash:${owner}`, Object.fromEntries(PERSONAL_KEYS.map((k) => [k, load(k, null)])));
-    PERSONAL_KEYS.forEach(remove);
-  }
-  if (owner !== userId) {
-    const mine = load(`stash:${userId}`, null);
-    if (mine) {
-      for (const [k, v] of Object.entries(mine)) if (v !== null) save(k, v);
-      remove(`stash:${userId}`);
-    }
-    save("owner", userId);
-  }
+  if (!owner) return;
+  save(`stash:${owner}`, snapshot());
+  PERSONAL_KEYS.forEach(remove);
+  remove("owner");
 }
 
-const KNOWN_TYPES = ["traits", "sum", "threshold", "matrix"];
+// Runs synchronously whenever a signed-in user is known, before any network call.
+// Anonymous data present at sign-in is adopted by this account (the consent text says so).
+export function claimDevice(userId) {
+  const owner = load("owner", null);
+  if (owner === userId) return;
+  if (owner) releaseDevice(); // stale owner, e.g. a session that ended without our sign-out handler
+  const mine = load(`stash:${userId}`, null);
+  if (mine) {
+    const current = getResults();
+    const ids = new Set(current.map((r) => r.id));
+    save("results", [...current, ...(mine.results || []).filter((r) => !ids.has(r.id))].sort((x, y) => y.date.localeCompare(x.date)).slice(0, 300));
+    const progress = { ...(mine.progress || {}) };
+    for (const [k, v] of Object.entries(getProgress())) if (!progress[k] || v.correct > progress[k].correct) progress[k] = v;
+    save("progress", progress);
+    for (const k of ["chat", "aiCache", "aiConsent"]) if (load(k, null) === null && mine[k] !== null) save(k, mine[k]);
+    remove(`stash:${userId}`);
+  }
+  save("owner", userId);
+}
 
 export async function fetchProfile(userId) {
   const { data, error } = await supabase.from("profiles").select("health_consent_at, consent_version, created_at").eq("id", userId).maybeSingle();
@@ -63,7 +76,7 @@ export async function pushProgress(userId, lessonId, p) {
 
 // Two-way merge on sign-in. Nothing is ever deleted here; deletions are explicit actions.
 export async function mergeAll(userId, consent) {
-  claimDevice(userId);
+  claimDevice(userId); // idempotent; normally already done by AuthProvider
   const [{ data: remoteProgress, error: pErr }, remoteResults] = await Promise.all([
     supabase.from("progress").select("lesson_id, correct, total, updated_at").eq("user_id", userId),
     consent ? supabase.from("results").select("client_id, test_id, taken_at, result").eq("user_id", userId) : Promise.resolve({ data: [] }),

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { AuthContext } from "../lib/auth-context";
-import { fetchProfile, mergeAll, pushResult, removeResult, pushProgress } from "../lib/sync";
+import { fetchProfile, mergeAll, pushResult, removeResult, pushProgress, claimDevice, releaseDevice } from "../lib/sync";
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -11,12 +11,18 @@ export default function AuthProvider({ children }) {
   const [syncState, setSyncState] = useState("idle"); // idle | syncing | synced | error
 
   useEffect(() => {
+    // Device ownership is settled synchronously, before React renders any personal data for the user.
+    const apply = (event, session) => {
+      if (session?.user) claimDevice(session.user.id);
+      else if (event === "SIGNED_OUT") releaseDevice();
+      setUser(session?.user ?? null);
+    };
     supabase.auth.getSession().then(({ data }) => {
-      setUser(data.session?.user ?? null);
+      apply("INITIAL_SESSION", data.session);
       setReady(true);
     });
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+      apply(event, session);
       if (event === "PASSWORD_RECOVERY") setRecovery(true);
     });
     return () => data.subscription.unsubscribe();
