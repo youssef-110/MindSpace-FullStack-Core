@@ -3,6 +3,8 @@
 Learn how the mind is measured, then measure yours. Short psychology lessons, research-based
 self-assessments, and results that say what a score means and what it can't tell you.
 
+**Live site:** https://mindspace-eta-vert.vercel.app
+
 **For education and self-reflection. Not a medical service, and never a diagnosis.**
 
 ## What's inside
