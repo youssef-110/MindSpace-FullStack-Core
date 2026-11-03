@@ -92,7 +92,8 @@ function Questionnaire({ test, initial, onDone }) {
       setAnswers(next);
       if (next.every((a) => a !== null)) return onDone(next);
       setDir(1);
-      setTimeout(() => setI((cur) => Math.min(cur + 1, test.items.length - 1)), 160);
+      // Absolute target, not cur + 1: a double-click or repeated key press must not skip the next item.
+      setTimeout(() => setI(Math.min(i + 1, test.items.length - 1)), 160);
     },
     [answers, i, onDone, test.items.length]
   );
