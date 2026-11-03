@@ -170,8 +170,9 @@ export default function Result() {
   const { id } = useParams();
   const navigate = useNavigate();
   const entry = getResult(id);
-  if (!entry) return <p className="py-20">Result not found. <Link to="/results" className="link">See your results</Link></p>;
-  const test = byId(entry.testId);
+  // A result can outlive its test (removed test, older backup); the results list hides those, so this page does too.
+  const test = entry && byId(entry.testId);
+  if (!test) return <p className="py-20">Result not found. <Link to="/results" className="link">See your results</Link></p>;
   const r = entry.result;
   const previous = getResults().find((x) => x.testId === entry.testId && x.date < entry.date);
   const prevValue = previous && (r.type === "matrix" ? previous.result.estimate : previous.result.score);
