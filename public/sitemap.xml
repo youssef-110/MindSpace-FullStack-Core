@@ -28,6 +28,7 @@
   <url><loc>https://mindspace-eta-vert.vercel.app/learn/sleep</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/learn/memory</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/learn/biases</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/learn/trauma</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/big-five</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/self-esteem</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/matrix</loc></url>
@@ -44,4 +45,11 @@
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/grit</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/asrs</loc></url>
   <url><loc>https://mindspace-eta-vert.vercel.app/tests/aq10</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/need-for-cognition</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/ecr-r</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/flourishing</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/pc-ptsd-5</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/reaction-time</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/digit-span</loc></url>
+  <url><loc>https://mindspace-eta-vert.vercel.app/tests/stroop</loc></url>
 </urlset>

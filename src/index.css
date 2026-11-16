@@ -1,122 +1,258 @@
 @import "tailwindcss";
 
-/* Class-based dark mode (html.dark). Tokens are documented in DESIGN.md. */
+/* Class-based dark mode (html.dark). Tokens and rules are documented in DESIGN.md. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Atkinson Hyperlegible", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+  --font-sans: "Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Fraunces Variable", "Fraunces", "Playfair Display", Georgia, serif;
 
   --color-paper: var(--paper);
   --color-surface: var(--surface);
   --color-sunken: var(--sunken);
   --color-ink: var(--ink);
   --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
   --color-line: var(--line);
   --color-brand: var(--brand);
+  --color-brand-fill: var(--brand-fill);
+  --color-brand-text: var(--brand-text);
   --color-brand-ink: var(--brand-ink);
-  --color-marigold: var(--marigold);
+  --color-brand-soft: var(--brand-soft);
   --color-sage: var(--sage);
   --color-amber: var(--amber);
   --color-rose: var(--rose);
-}
+  --color-sage-soft: var(--sage-soft);
+  --color-amber-soft: var(--amber-soft);
+  --color-rose-soft: var(--rose-soft);
 
-/* Palette: the psychology-lab answer sheet. Graphite ink on cool paper, printed in green "drop-out" ink,
-   with a pencil-yellow mark for the one thing you're asked to find. */
-:root {
-  --paper: #f4f5f1;
-  --surface: #ffffff;
-  --sunken: #eceee9;
-  --ink: #15211c;
-  --ink-2: #4c5853;
-  --line: #d9ded8;
-  --brand: #1f5e4b;
-  --brand-ink: #ffffff;
-  --marigold: #d4952b;
-  --sage: #2e7d5b;
-  --amber: #8a5a00;
-  --rose: #b3473f;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 30px;
 
-  --r-sm: 6px;
-  --r-md: 10px;
-  --r-lg: 14px;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --shadow: 0 1px 0 rgba(21, 33, 28, 0.04), 0 10px 28px -18px rgba(21, 33, 28, 0.28);
 }
 
-/* Dark mode is neutral charcoal, not tinted: the green is a light-theme ink colour only.
-   Actions invert to near-white, the way a dark UI should read. */
+/* Twilight editorial: an achromatic page, one blue for actions, and the dusk sky as the single
+   atmospheric moment. Depth comes from halos (soft rings), never heavy drop shadows. */
+:root {
+  --paper: #f7f7f7;
+  --surface: #ffffff;
+  --sunken: #f0f0f2;
+  --ink: #000000;
+  --ink-2: #3e3e3e;
+  --ink-3: #636363;
+  --line: #e7e7ea;
+  --brand: #007aff; /* rings, icons, focus, large accents */
+  --brand-fill: #0070eb; /* filled buttons: white text passes 4.5:1 */
+  --brand-text: #0064d2; /* links and small blue text on light surfaces */
+  --brand-ink: #ffffff;
+  --brand-soft: #e8f2ff;
+  --sage: #16794c;
+  --amber: #8f5f00;
+  --rose: #c0392f;
+  --sage-soft: #e6f4ec;
+  --amber-soft: #fbf1dc;
+  --rose-soft: #fdecea;
+
+  --halo: rgba(18, 20, 40, 0.045);
+  --halo-ring: 0 0 0 5px var(--halo);
+  --btn-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.28), 0 0 0 1px rgba(0, 0, 0, 0.12), 0 3px 2px 0 rgba(0, 0, 0, 0.06);
+
+  --dusk: linear-gradient(180deg, #4a7ff2 0%, #7b7ed8 30%, #c98ab5 65%, #e8a87c 100%);
+  --dusk-shade: linear-gradient(180deg, rgba(14, 24, 78, 0.34) 0%, rgba(14, 24, 78, 0.12) 55%, rgba(14, 24, 78, 0) 100%);
+  --hill-far: #5d5aa6;
+  --hill-mid: #3d3a78;
+  --hill-near: #1d1b3f;
+
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 22px;
+  --r-xl: 30px;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Night: the same sky after dark. Neutral near-black surfaces, the blue brightens. */
 html.dark {
-  --paper: #0e0f11;
-  --surface: #17181b;
-  --sunken: #0a0a0c;
-  --ink: #ececee;
-  --ink-2: #a2a4aa;
-  --line: #2a2c31;
-  --brand: #ececee;
-  --brand-ink: #0e0f11;
-  --marigold: #e2a94b;
-  --sage: #8cc7a9;
-  --amber: #e9bc63;
-  --rose: #f08a80;
-  --shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 12px 30px -18px rgba(0, 0, 0, 0.8);
+  --paper: #0b0b0f;
+  --surface: #15151b;
+  --sunken: #0f0f14;
+  --ink: #f5f5f7;
+  --ink-2: #c9c9d1;
+  --ink-3: #9a9aa6;
+  --line: #26262e;
+  --brand: #3d9bff;
+  --brand-fill: #3d9bff;
+  --brand-text: #6cb2ff;
+  --brand-ink: #00162e;
+  --brand-soft: #10243d;
+  --sage: #6fd3a2;
+  --amber: #f0c267;
+  --rose: #ff8f85;
+  --sage-soft: #11281e;
+  --amber-soft: #2b2210;
+  --rose-soft: #2f1614;
+
+  --halo: rgba(255, 255, 255, 0.045);
+  --btn-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.4);
+
+  --dusk: linear-gradient(180deg, #070b26 0%, #1c1f5c 32%, #6a4384 68%, #d0825f 100%);
+  --dusk-shade: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 70%);
+  --hill-far: #2b2a63;
+  --hill-mid: #191840;
+  --hill-near: #0b0b0f;
 }
 
 @layer base {
-  html { color-scheme: light; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+  html { color-scheme: light; -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
   html.dark { color-scheme: dark; }
   body {
     margin: 0;
     font-family: var(--font-sans);
-    font-size: 1.0625rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.5;
+    letter-spacing: -0.014em;
+    font-feature-settings: "cv03", "cv04", "cv09", "cv11";
     background: var(--paper);
-    color: var(--ink);
+    color: var(--ink-2);
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; line-height: 1.1; letter-spacing: -0.012em; text-wrap: balance; font-optical-sizing: auto; }
-  h1 { font-weight: 650; }
+  /* The serif is display-only: h1 and h2. Everything smaller is Inter. */
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    text-wrap: balance;
+    font-optical-sizing: auto;
+    font-variation-settings: "SOFT" 60, "WONK" 0;
+  }
+  h3, h4 { font-family: var(--font-sans); font-weight: 600; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink); text-wrap: balance; }
+  strong, b { font-weight: 600; color: var(--ink); }
   p { text-wrap: pretty; }
-  ::selection { background: var(--marigold); color: #15211c; }
-  :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; border-radius: 6px; }
-  button { cursor: pointer; font: inherit; color: inherit; }
+  ::selection { background: var(--brand); color: #fff; }
+  :focus-visible { outline: 3px solid var(--brand); outline-offset: 3px; border-radius: 10px; }
+  button { cursor: pointer; font: inherit; color: inherit; letter-spacing: inherit; }
   button, a, [role="button"], [role="tab"], [role="radio"] { touch-action: manipulation; }
-  input, textarea, select { font-size: 16px; }
-  input:focus-visible { outline-offset: 0; }
+  input, textarea, select { font: inherit; font-size: 16px; letter-spacing: inherit; }
+  input:focus-visible, textarea:focus-visible, select:focus-visible { outline-offset: 0; }
 }
 
 @layer components {
-  .panel {
+  /* ---- Type helpers ---- */
+  .display { font-family: var(--font-display); font-weight: 400; line-height: 1; letter-spacing: -0.025em; color: var(--ink); font-variation-settings: "SOFT" 60, "WONK" 0; }
+  .eyebrow { font-size: 0.8125rem; font-weight: 600; letter-spacing: -0.01em; color: var(--ink-3); }
+  .lead { font-size: 1.125rem; line-height: 1.45; color: var(--ink-2); }
+  .muted { color: var(--ink-3); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---- Surfaces ---- */
+  .card {
     background: var(--surface);
     border: 1px solid var(--line);
     border-radius: var(--r-lg);
-    box-shadow: var(--shadow);
+    box-shadow: var(--halo-ring);
   }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--halo-ring); }
+  .card-flat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+  .well { background: var(--sunken); border-radius: var(--r-md); }
+  .glass {
+    background: color-mix(in srgb, var(--surface) 78%, transparent);
+    -webkit-backdrop-filter: saturate(1.6) blur(18px);
+    backdrop-filter: saturate(1.6) blur(18px);
+    border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  }
+  .card-hover { transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), border-color 0.2s; }
+  @media (hover: hover) and (pointer: fine) {
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 0 0 5px var(--halo), 0 18px 40px -24px rgba(20, 20, 60, 0.35); border-color: color-mix(in srgb, var(--ink) 16%, var(--line)); }
+  }
+
+  /* ---- Buttons: always pills ---- */
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;
-    min-height: 48px; padding: 0 1.4rem;
-    border-radius: 8px; font-weight: 700;
-    transition: transform 0.18s var(--ease-out), background-color 0.2s, border-color 0.2s;
+    min-height: 48px; padding: 0 1.5rem;
+    border-radius: 999px; font-weight: 600; font-size: 1rem; letter-spacing: -0.02em; white-space: nowrap;
+    transition: transform 0.2s var(--ease-out), background-color 0.2s, border-color 0.2s, opacity 0.2s, filter 0.2s;
   }
   .btn:active { transform: scale(0.97); }
-  .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-  .btn-primary { background: var(--brand); color: var(--brand-ink); }
-  .btn-quiet { background: transparent; border: 1.5px solid var(--line); color: var(--ink); }
-  @media (hover: hover) and (pointer: fine) { .btn-primary:hover { filter: brightness(1.08); } .btn-quiet:hover { border-color: var(--ink-2); } }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .btn-sm { min-height: 40px; padding: 0 1.1rem; font-size: 0.9375rem; }
+  .btn-lg { min-height: 56px; padding: 0 1.9rem; font-size: 1.0625rem; }
+  .btn-primary { background: var(--brand-fill); color: var(--brand-ink); box-shadow: var(--btn-shadow); }
+  .btn-dark { background: var(--ink); color: var(--paper); }
+  .btn-ghost, .btn-quiet { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); }
+  .btn-soft { background: var(--sunken); color: var(--ink); }
+  /* On the dusk gradient only: the white hero pill and its glass sibling. */
+  .btn-sky { background: #ffffff; color: #000000; box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.22); }
+  .btn-sky-ghost { background: rgba(255, 255, 255, 0.14); color: #ffffff; border: 1.5px solid rgba(255, 255, 255, 0.55); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+  @media (hover: hover) and (pointer: fine) {
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-dark:hover { opacity: 0.86; }
+    .btn-ghost:hover, .btn-quiet:hover { background: var(--ink); color: var(--paper); }
+    .btn-soft:hover { background: color-mix(in srgb, var(--ink) 9%, var(--sunken)); }
+    .btn-sky:hover { box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.3); }
+    .btn-sky-ghost:hover { background: rgba(255, 255, 255, 0.24); }
+  }
+
+  /* ---- Small parts ---- */
   .tag {
     display: inline-flex; align-items: center; gap: 0.35rem;
-    font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.6rem;
-    border-radius: 999px; background: var(--sunken); color: var(--ink-2);
+    font-size: 0.75rem; font-weight: 500; line-height: 1; padding: 0.4rem 0.7rem;
+    border-radius: 999px; background: var(--sunken); color: var(--ink-2); white-space: nowrap;
   }
-  .prose-lesson p { margin: 0 0 1rem; max-width: 66ch; }
-  .link { color: var(--brand); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+  .tag-brand { background: var(--brand-soft); color: var(--brand-text); }
+  .tag-good { background: var(--sage-soft); color: var(--sage); }
+  .tag-warn { background: var(--amber-soft); color: var(--amber); }
+  .tag-alert { background: var(--rose-soft); color: var(--rose); }
+  .link { color: var(--brand-text); font-weight: 500; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--brand-text) 35%, transparent); text-underline-offset: 3px; text-decoration-thickness: 1.5px; transition: text-decoration-color 0.2s; }
+  .link:hover { text-decoration-color: currentColor; }
+  .field { display: grid; gap: 0.4rem; font-size: 0.875rem; font-weight: 500; color: var(--ink); }
+  .input {
+    width: 100%; min-height: 48px; padding: 0.7rem 1rem;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--line); border-radius: var(--r-md);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input::placeholder { color: var(--ink-3); }
+  .input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 4px color-mix(in srgb, var(--brand) 18%, transparent); }
+  .hairline { height: 1px; background: var(--line); border: 0; }
+
+  /* ---- Layout ---- */
+  .container-page { width: 100%; max-width: 1200px; margin-inline: auto; padding-inline: 1rem; }
+  @media (min-width: 640px) { .container-page { padding-inline: 1.5rem; } }
+  .section { padding-block: 4.5rem; }
+  @media (min-width: 768px) { .section { padding-block: 6.5rem; } }
+  .reading { max-width: 42.5rem; }
+
+  /* Long-form reading (lessons, legal): looser leading than UI copy. */
+  .prose-lesson { font-size: 1.0625rem; line-height: 1.65; }
+  .prose-lesson p { margin: 0 0 1.1rem; max-width: 66ch; }
+
+  /* ---- The sky ---- */
+  .sky { position: relative; isolation: isolate; overflow: hidden; background: var(--dusk); color: #fff; }
+  .sky::before { content: ""; position: absolute; inset: 0; background: var(--dusk-shade); z-index: -1; }
+  .sky h1, .sky h2, .sky .display { color: #fff; }
+  .sky-text { text-shadow: 0 1px 18px rgba(20, 24, 80, 0.28); }
 }
 
+@keyframes twinkle { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+@keyframes drift { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.animate-twinkle { animation: twinkle 3.6s ease-in-out infinite; }
+.animate-float { animation: float-y 7s ease-in-out infinite; }
+.skeleton { background: linear-gradient(90deg, var(--sunken) 25%, color-mix(in srgb, var(--surface) 70%, var(--sunken)) 50%, var(--sunken) 75%); background-size: 200% 100%; animation: shimmer 1.6s linear infinite; border-radius: var(--r-md); }
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
 @media print {
-  header, nav, footer, .no-print { display: none !important; }
-  body { background: white; }
+  body > #root > header, nav, footer, .no-print { display: none !important; }
+  body { background: white; color: black; }
+  .card, .panel { box-shadow: none; }
 }

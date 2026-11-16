@@ -11,8 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@fontsource-variable/source-serif-4": "^5.3.1",
-    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource-variable/inter": "^5.3.0",
     "@supabase/supabase-js": "^2.118.0",
     "@tailwindcss/postcss": "^4.3.3",
     "@vercel/analytics": "^2.0.1",

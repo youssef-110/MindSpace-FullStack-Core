@@ -39,18 +39,22 @@ You will receive one test result. Reply with JSON only, exactly this shape:
 
 // How to read each scoring type, so the model never guesses at a scale.
 const SCALE_NOTES = {
-  traits: "Each trait is scored 10–50; 30 is the scale midpoint. 'low' = 10–23, 'mid' = 24–36, 'high' = 37–50. These are thirds of the score range, NOT percentiles or population comparisons.",
-  sum: "The score is the published total for this instrument; 'band' is its standard severity/interpretation band.",
+  traits: "Each trait is given as score/maximum; scores run 10–50 and 30 is the scale midpoint. 'Low' = 10–23, 'Middle' = 24–36, 'High' = 37–50. These are thirds of the score range, NOT percentiles or population comparisons.",
+  subscales: "Each scale is given as score/maximum with the site's label in brackets. The label describes where the score sits on that scale as the test's notes explain; it is NOT a percentile or population comparison unless a percentile is explicitly given.",
+  sum: "The score is the published total for this instrument (min and max are given when the scale does not start at 0); 'band' is the site's interpretation band for that total. A percentile or normNote appears only when a published norm supports it.",
+  task: "An interactive task. The score is in the stated unit; lowerIsBetter=true means smaller is better. 'metrics' are extra computed figures. Device and browser delay affect timings, so compare a person only with their own earlier attempts. Bands are descriptions, not percentiles.",
   threshold: "The score counts answers that meet the instrument's criteria. aboveThreshold=true means the person screened positive, which only suggests a professional assessment may be worthwhile — it is not a diagnosis, and false positives are common.",
   matrix: "practiceEstimate is on the IQ scale (mean 100, SD 15) but item difficulties are design estimates, not normed. range90 is the 90% credibility range for the estimate given these answers. Call it a practice estimate.",
 };
 
+// "mean" scales produce the same result shape as "sum"; unknown types get no note rather than "undefined".
+const scaleNote = (test) => SCALE_NOTES[test.scoring.type === "mean" ? "sum" : test.scoring.type] ?? "";
+
 export function explainUser(test, summary) {
-  const type = test.scoring.type;
   return `Test: ${test.name} (${test.instrument})
 What it measures: ${test.measures}
 What it cannot measure: ${test.cannot}
-How to read the numbers: ${SCALE_NOTES[type] ?? ""}${summary.riskFlag ? "\nNote: the person endorsed an item about self-harm or not wanting to live. Begin the summary with gentle care and the crisis contacts before anything else." : ""}
+How to read the numbers: ${scaleNote(test)}${summary.riskFlag ? "\nNote: the person endorsed an item about self-harm or not wanting to live. Begin the summary with gentle care and the crisis contacts before anything else." : ""}
 <data>${JSON.stringify(summary)}</data>`;
 }
 
@@ -58,7 +62,7 @@ export function resultsContext(items) {
   return items
     .map(({ testId, summary }) => {
       const test = questionnaires.find((q) => q.id === testId);
-      return test ? `${test.name} (${test.instrument}) — ${SCALE_NOTES[test.scoring.type]}\n<data>${JSON.stringify(summary)}</data>` : "";
+      return test ? `${test.name} (${test.instrument}) — ${scaleNote(test)}\n<data>${JSON.stringify(summary)}</data>` : "";
     })
     .filter(Boolean)
     .join("\n");

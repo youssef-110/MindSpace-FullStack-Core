@@ -166,7 +166,7 @@ export const lessons = [
     sections: [
       ["Two continua", "Corey Keyes showed that mental illness and mental wellbeing are related but separate. You can have no diagnosis and still be 'languishing', or live with a condition and still be flourishing."],
       ["What moves it", "Daylight and movement, sleep, connection, and activities that are absorbing or meaningful. These have small effects individually and large ones together."],
-      ["Measuring it", "The WHO-5 is a five-question index scored 0–100. Under 50 suggests reduced wellbeing, and 28 or below is used as a depression screen."],
+      ["Measuring it", "The WHO-5 is a five-question index scored 0–100. A score of 50 or below suggests reduced wellbeing, and 28 or below is used as a depression screen."],
     ],
     quiz: [
       ["'Languishing' means…", ["Low wellbeing without a diagnosed illness", "Severe depression", "High stress", "A personality disorder"], 0, "It's the absence of flourishing."],
@@ -301,7 +301,7 @@ export const lessons = [
       ["Low anxiety and low avoidance describes…", ["Secure attachment", "Fearful attachment", "Dismissive attachment", "Preoccupied attachment"], 0, "Security means comfort with closeness and little fear of losing it."],
       ["Attachment patterns in adulthood…", ["Can shift with new relationships and therapy", "Never change after age 5", "Are purely genetic", "Only apply to parents"], 0, "Earned security is well documented."],
     ],
-    test: null,
+    test: "ecr-r",
   },
   {
     id: "emotions",
@@ -376,7 +376,26 @@ export const lessons = [
       ["Why do horoscopes often feel accurate?", ["The Barnum effect", "They use validated items", "Astrology is reliable", "The availability heuristic"], 0, "Vague, flattering statements fit almost everyone."],
       ["A good habit against confirmation bias is…", ["Asking what would change your mind", "Only reading sources you agree with", "Deciding quickly", "Trusting first impressions"], 0, "Actively seeking disconfirming evidence counters the bias."],
     ],
-    test: "big-five",
+    test: "need-for-cognition",
+  },
+  {
+    id: "trauma",
+    title: "Trauma and how people recover",
+    summary: "What counts as trauma, the reactions that commonly follow, and what helps them settle.",
+    minutes: 5,
+    track: "Mood",
+    sections: [
+      ["What trauma means", "In psychology, a traumatic event is one that involves actual or threatened death, serious injury or sexual violence, experienced directly, witnessed, or happening to someone close. Many painful events, such as a breakup or losing a job, are stressful without being traumatic in this sense. That does not make them less real."],
+      ["Common reactions", "In the days and weeks after such an event, most people have some of these: unwanted memories or nightmares, avoiding reminders, feeling on guard or jumpy, feeling numb or cut off, and guilt or blame. These are the mind's normal attempts to process a threat, and for most people they fade over the following weeks."],
+      ["When reactions stay", "Post-traumatic stress disorder (PTSD) is diagnosed when these reactions last longer than a month and get in the way of daily life. Most people exposed to trauma do not develop it. Risk is higher after repeated or interpersonal violence and when support afterwards is poor."],
+      ["What helps", "Support from other people is the best-established protective factor. For PTSD, trauma-focused therapies such as prolonged exposure, cognitive processing therapy and EMDR have the strongest evidence. They work at a pace you agree with a therapist. Nobody needs to retell what happened before they are ready, and a screen on this site will never ask you to."],
+    ],
+    quiz: [
+      ["After a traumatic event, most people…", ["Have some reactions that fade over the following weeks", "Develop PTSD", "Feel nothing at all", "Never recover"], 0, "Early reactions are common and usually ease. PTSD is the less common outcome."],
+      ["PTSD is considered when reactions…", ["Last more than a month and disrupt daily life", "Appear in the first two days", "Include any bad dream", "Follow any stressful event"], 0, "Duration and interference with life are both part of the definition."],
+      ["Which has the strongest evidence for treating PTSD?", ["Trauma-focused therapy", "Avoiding all reminders", "Waiting it out for years", "Being pushed to retell everything at once"], 0, "Prolonged exposure, cognitive processing therapy and EMDR are the best-supported treatments."],
+    ],
+    test: "pc-ptsd-5",
   },
 ];
 

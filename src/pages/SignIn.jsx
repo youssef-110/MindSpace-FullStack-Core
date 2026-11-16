@@ -3,7 +3,9 @@ import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../lib/auth-context";
 import { setHealthConsent } from "../lib/sync";
+import { motion } from "framer-motion";
 import { CONSENT_VERSION, MIN_AGE, SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from "../lib/config";
+import { Icon, PageHeader } from "../components/ui";
 
 // Official multicolour Google "G", as required by Google's sign-in branding guidelines.
 function GoogleG() {
@@ -103,29 +105,34 @@ export default function SignIn() {
     }
   }
 
-  const field = "mt-1.5 block min-h-[48px] w-full rounded-[8px] border border-line bg-surface px-3.5 text-base focus:border-brand";
   return (
-    <div className="mx-auto max-w-md py-10">
-      <h1 className="text-4xl font-semibold">{MODES[mode]}</h1>
-      <p className="mt-2 text-ink-2">
-        {mode === "up"
-          ? "An account lets you use the AI and, if you choose, keep your results and progress across devices."
-          : mode === "reset"
-            ? "Enter your email and we'll send you a link to choose a new password."
-            : "Welcome back. Your progress syncs as soon as you sign in."}
-      </p>
+    <div className="mx-auto max-w-md">
+      <PageHeader
+        className="!mb-8"
+        title={MODES[mode]}
+        lead={
+          mode === "up"
+            ? "An account lets you use the AI and, if you choose, keep your results and progress across devices."
+            : mode === "reset"
+              ? "Enter your email and we'll send you a link to choose a new password."
+              : "Welcome back. Your progress syncs as soon as you sign in."
+        }
+      />
 
+      <div className="card p-5 sm:p-7">
       {mode !== "reset" && (
-        <div className="mt-6 grid grid-cols-2 rounded-[10px] bg-sunken p-1" role="tablist" aria-label="Account">
+        <div className="grid grid-cols-2 rounded-full bg-sunken p-1" role="tablist" aria-label="Account">
           {["in", "up"].map((m) => (
             <button
               key={m}
+              type="button"
               role="tab"
               aria-selected={mode === m}
               onClick={() => { setMode(m); setError(""); setNotice(""); }}
-              className={`min-h-[44px] rounded-[7px] text-sm font-bold transition-colors ${mode === m ? "bg-surface text-ink shadow-[var(--shadow)]" : "text-ink-2"}`}
+              className={`relative min-h-11 rounded-full text-sm font-semibold transition-colors ${mode === m ? "text-ink" : "text-ink-3 hover:text-ink"}`}
             >
-              {MODES[m]}
+              {mode === m && <motion.span layoutId="auth-tab" className="absolute inset-0 rounded-full border border-line bg-surface" transition={{ type: "spring", stiffness: 420, damping: 36 }} />}
+              <span className="relative">{MODES[m]}</span>
             </button>
           ))}
         </div>
@@ -133,36 +140,39 @@ export default function SignIn() {
 
       {mode !== "reset" && !notice && googleOn && (
         <div className="mt-6">
-          <button type="button" onClick={google} className="btn btn-quiet w-full gap-3 bg-surface">
+          <button type="button" onClick={google} className="btn btn-ghost w-full gap-3">
             <GoogleG /> Continue with Google
           </button>
-          <p className="mt-2 text-sm text-ink-2">
+          <p className="mt-3 text-sm text-ink-3">
             By continuing with Google you confirm you're {MIN_AGE} or older and accept the <Link to="/terms" className="link">terms</Link> and{" "}
             <Link to="/privacy" className="link">privacy notice</Link>.
           </p>
-          <div className="mt-6 flex items-center gap-3 text-sm text-ink-2" aria-hidden="true">
+          <div className="mt-6 flex items-center gap-3 text-sm text-ink-3" aria-hidden="true">
             <span className="h-px flex-1 bg-line" /> or with email <span className="h-px flex-1 bg-line" />
           </div>
         </div>
       )}
 
       {notice ? (
-        <div className="mt-6 rounded-[var(--r-md)] border border-line bg-surface p-5" role="status">
-          <p>{notice}</p>
-          <p className="mt-2 text-sm text-ink-2">Can't find it? Check your spam folder.</p>
-          <button className="btn btn-quiet mt-4" onClick={() => { setNotice(""); setMode("in"); }}>Back to sign in</button>
+        <div className={mode === "reset" ? "" : "mt-6"} role="status">
+          <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-brand-text">
+            <Icon name="check" />
+          </span>
+          <p className="mt-4 font-medium text-ink">{notice}</p>
+          <p className="mt-2 text-sm text-ink-3">Can't find it? Check your spam folder.</p>
+          <button type="button" className="btn btn-ghost mt-5" onClick={() => { setNotice(""); setMode("in"); }}>Back to sign in</button>
         </div>
       ) : (
-        <form className="mt-6 space-y-4" onSubmit={submit} noValidate={false}>
-          <label className="block">
-            <span className="font-bold">Email</span>
-            <input className={field} type="email" required autoComplete="email" inputMode="email" autoCapitalize="none" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <form className={`grid gap-4 ${mode === "reset" ? "" : "mt-6"}`} onSubmit={submit} noValidate={false} aria-describedby={error ? "auth-error" : undefined}>
+          <label className="field">
+            Email
+            <input className="input" type="email" required autoComplete="email" inputMode="email" autoCapitalize="none" value={email} onChange={(e) => setEmail(e.target.value)} />
           </label>
           {mode !== "reset" && (
-            <label className="block">
-              <span className="font-bold">Password</span>
+            <label className="field">
+              Password
               <input
-                className={field}
+                className="input"
                 type="password"
                 required
                 minLength={8}
@@ -170,21 +180,21 @@ export default function SignIn() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              {mode === "up" && <span className="mt-1 block text-sm text-ink-2">At least 8 characters.</span>}
+              {mode === "up" && <span className="font-normal text-ink-3">At least 8 characters.</span>}
             </label>
           )}
 
           {mode === "up" && (
-            <div className="space-y-3 rounded-[var(--r-md)] bg-sunken p-4 text-[0.95rem]">
+            <div className="well grid gap-4 p-4 text-[0.9375rem]">
               <label className="flex items-start gap-3">
-                <input type="checkbox" required className="mt-1 h-5 w-5 shrink-0 accent-[var(--brand)]" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
+                <input type="checkbox" required className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--brand)]" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
                 <span>
                   I'm {MIN_AGE} or older, I accept the <Link to="/terms" className="link">terms</Link>, and I've read the{" "}
                   <Link to="/privacy" className="link">privacy policy</Link>.
                 </span>
               </label>
               <label className="flex items-start gap-3">
-                <input type="checkbox" className="mt-1 h-5 w-5 shrink-0 accent-[var(--brand)]" checked={saveResults} onChange={(e) => setSaveResults(e.target.checked)} />
+                <input type="checkbox" className="mt-0.5 h-5 w-5 shrink-0 accent-[var(--brand)]" checked={saveResults} onChange={(e) => setSaveResults(e.target.checked)} />
                 <span>
                   <strong>Optional:</strong> I explicitly consent to my test results, including results already on this device, being stored in my account.
                   Some results relate to mental health. I can withdraw this any time, which deletes them from my account.
@@ -193,17 +203,23 @@ export default function SignIn() {
             </div>
           )}
 
-          {error && <p className="font-bold text-rose" role="alert">{error}</p>}
+          {error && (
+            <p id="auth-error" className="flex items-start gap-2 rounded-[var(--r-md)] bg-rose-soft p-3.5 text-sm font-medium text-rose" role="alert">
+              <Icon name="alert" size={20} />
+              {error}
+            </p>
+          )}
           <button className="btn btn-primary w-full" disabled={busy || (mode === "up" && !agree)}>
             {busy ? "Please wait…" : MODES[mode]}
           </button>
         </form>
       )}
+      </div>
 
-      <div className="mt-6 flex flex-wrap justify-between gap-3 text-sm">
-        {mode === "in" && !notice && <button className="link" onClick={() => { setMode("reset"); setError(""); }}>Forgot your password?</button>}
-        {mode === "reset" && <button className="link" onClick={() => setMode("in")}>Back to sign in</button>}
-        <span className="text-ink-2">Everything works without an account too.</span>
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-1 text-sm">
+        {mode === "in" && !notice && <button type="button" className="link min-h-11" onClick={() => { setMode("reset"); setError(""); }}>Forgot your password?</button>}
+        {mode === "reset" && <button type="button" className="link min-h-11" onClick={() => setMode("in")}>Back to sign in</button>}
+        <span className="text-ink-3">Everything works without an account too.</span>
       </div>
     </div>
   );

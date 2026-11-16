@@ -8,16 +8,26 @@ import { clearDeviceData, getResults, getProgress, load, remove } from "../lib/s
 import { CONSENT_VERSION } from "../lib/config";
 import { lessons } from "../lib/learn";
 import { QuotaBadge } from "../components/AiAccess";
+import { Icon, PageHeader } from "../components/ui";
 
 const SYNC_TEXT = { idle: "Not synced yet", syncing: "Syncing…", synced: "Up to date", error: "Couldn't sync. We'll retry when you reload." };
+const SYNC_TAG = { idle: "", syncing: "tag-brand", synced: "tag-good", error: "tag-alert" };
 
-function Section({ title, children }) {
+// Card titles are Inter, not the display serif (DESIGN.md: serif never below 28px).
+function Section({ title, icon, danger = false, children }) {
   return (
-    <section className="border-t border-line py-7">
-      <h2 className="text-xl font-semibold">{title}</h2>
-      <div className="mt-3 space-y-3">{children}</div>
+    <section className={`card p-5 sm:p-7 ${danger ? "border-rose/40" : ""}`}>
+      <h2 className={`flex items-center gap-2.5 font-sans text-lg font-semibold tracking-[-0.02em] ${danger ? "text-rose" : ""}`}>
+        <Icon name={icon} size={20} className={danger ? "" : "text-ink-3"} />
+        {title}
+      </h2>
+      <div className="mt-3 grid justify-items-start gap-3">{children}</div>
     </section>
   );
+}
+
+function GroupLabel({ children }) {
+  return <p className="eyebrow mb-3 mt-10 px-1">{children}</p>;
 }
 
 function NewPassword({ onDone }) {
@@ -35,13 +45,13 @@ function NewPassword({ onDone }) {
     onDone?.();
   }
   return (
-    <form onSubmit={submit} className="flex flex-col gap-3 sm:flex-row sm:items-end">
-      <label className="block flex-1">
-        <span className="text-sm font-bold">New password</span>
-        <input type="password" required minLength={8} autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} className="mt-1.5 block min-h-[48px] w-full rounded-[8px] border border-line bg-surface px-3.5 text-base focus:border-brand" />
+    <form onSubmit={submit} className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+      <label className="field flex-1">
+        New password
+        <input type="password" required minLength={8} autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} className="input" />
       </label>
-      <button className="btn btn-quiet" disabled={busy || pw.length < 8}>Save password</button>
-      {msg && <p className="text-sm font-bold sm:basis-full" role="status">{msg}</p>}
+      <button className="btn btn-ghost" disabled={busy || pw.length < 8}>Save password</button>
+      {msg && <p className="text-sm font-medium text-ink sm:basis-full" role="status">{msg}</p>}
     </form>
   );
 }
@@ -104,78 +114,97 @@ export default function Account() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-semibold">Your account</h1>
-      <p className="mt-2 break-all text-ink-2">{user.email}</p>
+    <div className="mx-auto max-w-2xl">
+      <PageHeader className="!mb-8" title="Your account">
+        <p className="lead mt-4 break-all">{user.email}</p>
+      </PageHeader>
 
       {recovery && (
-        <div className="mt-6 rounded-[var(--r-md)] border-2 border-brand/40 bg-surface p-5">
-          <h2 className="text-lg font-semibold">Choose a new password</h2>
+        <div className="card mb-4 border-brand/50 p-5 sm:p-7">
+          <h2 className="font-sans text-lg font-semibold tracking-[-0.02em]">Choose a new password</h2>
           <div className="mt-3"><NewPassword onDone={clearRecovery} /></div>
         </div>
       )}
 
-      {msg && <p className="mt-6 rounded-[var(--r-md)] bg-sunken p-4 font-bold" role="status">{msg}</p>}
+      <div aria-live="polite">
+        {msg && (
+          <p className="well mb-4 flex items-start gap-2.5 p-4 font-medium text-ink">
+            <Icon name="info" size={20} className="mt-0.5 text-ink-3" />
+            {msg}
+          </p>
+        )}
+      </div>
 
-      <div className="mt-8">
-        <Section title="Progress">
-          <p className="text-ink-2">
-            {getResults().length} saved result{getResults().length === 1 ? "" : "s"} and {done} of {lessons.length} lessons completed.{" "}
+      <div className="grid gap-4">
+        <Section title="Progress" icon="chart">
+          <p>
+            <span className="num">{getResults().length}</span> saved result{getResults().length === 1 ? "" : "s"} and <span className="num">{done}</span> of {lessons.length} lessons completed.{" "}
             <Link to="/results" className="link">See your progress</Link>
           </p>
-          <p className="text-sm text-ink-2">Sync status: {SYNC_TEXT[syncState]}</p>
+          <p className="flex flex-wrap items-center gap-2 text-sm text-ink-3" role="status">
+            Sync status: <span className={`tag ${SYNC_TAG[syncState] ?? ""}`}>{SYNC_TEXT[syncState]}</span>
+          </p>
         </Section>
 
-        <Section title="Save test results to your account">
-          <p className="text-ink-2">
+        <GroupLabel>Privacy and data</GroupLabel>
+        <Section title="Save test results to your account" icon="lock">
+          <p>
             {consent
               ? `On since ${new Date(profile.health_consent_at).toLocaleDateString()}. Your results are stored in an EU data centre and follow you to any device you sign in on.`
               : "Off. Your results stay only in this browser. Lesson progress still syncs."}
           </p>
-          <p className="text-sm text-ink-2">
+          <p className="text-sm text-ink-3">
             Some results relate to mental health, which EU law treats as sensitive data. Turning this on is your explicit consent to store your
             results in your account, including those already on this device. Turning it off withdraws consent and deletes them from your account.
           </p>
-          <button className="btn btn-quiet" onClick={toggleConsent} disabled={busy === "consent" || !profile}>
+          <button className={`btn whitespace-normal py-2 ${consent ? "border-[1.5px] border-rose/50 text-rose hover:bg-rose-soft" : "btn-ghost"}`} onClick={toggleConsent} disabled={busy === "consent" || !profile}>
             {consent ? "Turn off and delete stored results" : "Turn on result syncing"}
           </button>
         </Section>
 
-        <Section title="AI usage">
+        <Section title="AI usage" icon="spark">
           <QuotaBadge quota={quota} />
           {aiConsent && (
-            <button className="btn btn-quiet" onClick={() => { remove("aiConsent"); setAiConsent(false); setMsg("AI consent withdrawn. You'll be asked again before using the AI."); }}>
+            <button className="btn btn-ghost" onClick={() => { remove("aiConsent"); setAiConsent(false); setMsg("AI consent withdrawn. You'll be asked again before using the AI."); }}>
               Withdraw AI consent
             </button>
           )}
-          <p className="text-sm text-ink-2">Each account has a daily number of AI requests so the AI stays available for everyone.</p>
+          <p className="text-sm text-ink-3">Each account has a daily number of AI requests so the AI stays available for everyone.</p>
         </Section>
 
+        <Section title="Your data" icon="download">
+          <p>Download everything stored in your account and on this device, as a JSON file.</p>
+          <button className="btn btn-ghost" onClick={download} disabled={busy === "export"}>
+            <Icon name="download" size={18} />
+            {busy === "export" ? "Preparing…" : "Download my data"}
+          </button>
+        </Section>
+
+        <GroupLabel>Security</GroupLabel>
         {!recovery && (
-          <Section title="Password">
+          <Section title="Password" icon="shield">
             <NewPassword />
           </Section>
         )}
 
-        <Section title="Your data">
-          <p className="text-ink-2">Download everything stored in your account and on this device, as a JSON file.</p>
-          <button className="btn btn-quiet" onClick={download} disabled={busy === "export"}>Download my data</button>
-        </Section>
-
-        <Section title="Sign out">
+        <Section title="Sign out" icon="user">
           <div className="flex flex-wrap gap-3">
-            <button className="btn btn-quiet" onClick={() => signOut(false)}>Sign out</button>
-            <button className="btn btn-quiet" onClick={() => signOut(true)}>Sign out and clear this device</button>
+            <button className="btn btn-dark" onClick={() => signOut(false)}>Sign out</button>
+            <button className="btn btn-ghost whitespace-normal py-2" onClick={() => signOut(true)}>Sign out and clear this device</button>
           </div>
-          <p className="text-sm text-ink-2">
+          <p className="text-sm text-ink-3">
             Signing out hides your results, progress and chats on this device until you sign in again. On a shared device, choose "clear this device" to
             remove them completely.
           </p>
         </Section>
 
-        <Section title="Delete account">
-          <p className="text-ink-2">Permanently deletes your account, stored results, progress and AI usage records. This can't be undone.</p>
-          <button className="btn btn-quiet text-rose" onClick={deleteAccount} disabled={busy === "delete"}>Delete my account</button>
+        <GroupLabel>Danger zone</GroupLabel>
+        <Section title="Delete account" icon="trash" danger>
+          <p>Permanently deletes your account, stored results, progress and AI usage records. This can't be undone.</p>
+          <button className="btn border-[1.5px] border-rose/50 text-rose hover:bg-rose-soft" onClick={deleteAccount} disabled={busy === "delete"}>
+            <Icon name="trash" size={18} />
+            {busy === "delete" ? "Deleting…" : "Delete my account"}
+          </button>
         </Section>
       </div>
     </div>

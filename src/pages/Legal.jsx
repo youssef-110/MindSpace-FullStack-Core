@@ -1,21 +1,39 @@
+import { Children } from "react";
 import { Link } from "react-router-dom";
 import { CONSENT_VERSION, MIN_AGE } from "../lib/config";
+import { PageHeader } from "../components/ui";
 
+// The table of contents is read from the <S id title> sections passed as children.
 function Doc({ title, intro, children }) {
+  const toc = Children.toArray(children).map((c) => [c.props.id, c.props.title]);
   return (
-    <article className="mx-auto max-w-3xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-semibold">{title}</h1>
-      <p className="mt-2 text-sm text-ink-2">Last updated {new Date(CONSENT_VERSION).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
-      {intro && <p className="mt-6 text-lg">{intro}</p>}
-      <div className="mt-8 space-y-8">{children}</div>
-    </article>
+    <div className="mx-auto max-w-[62rem]">
+      <PageHeader title={title} lead={intro}>
+        <p className="mt-4 text-sm text-ink-3">Last updated {new Date(CONSENT_VERSION).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</p>
+      </PageHeader>
+      <div className="lg:grid lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-16">
+        <nav aria-label="On this page" className="well no-print mb-10 p-4 lg:sticky lg:top-28 lg:mb-0 lg:bg-transparent lg:p-0">
+          <p className="eyebrow mb-1 px-2 lg:mb-2">On this page</p>
+          <ol>
+            {toc.map(([id, label]) => (
+              <li key={id}>
+                <a href={`#${id}`} className="flex min-h-11 items-center rounded-[var(--r-sm)] px-2 text-sm font-medium text-ink-3 transition-colors hover:bg-sunken hover:text-ink lg:min-h-10">
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <article className="prose-lesson grid gap-12">{children}</article>
+      </div>
+    </div>
   );
 }
 
 const S = ({ id, title, children }) => (
-  <section id={id} className="scroll-mt-24">
-    <h2 className="text-2xl font-semibold mb-3">{title}</h2>
-    <div className="space-y-3 leading-relaxed [&_li]:ml-5 [&_li]:list-disc [&_ul]:space-y-1.5">{children}</div>
+  <section id={id} className="scroll-mt-28">
+    <h2 className="mb-4 text-[1.75rem] sm:text-[2rem]">{title}</h2>
+    <div className="[&>:last-child]:mb-0 [&_li]:ml-5 [&_li]:max-w-[66ch] [&_li]:list-disc [&_ul]:mb-[1.1rem] [&_ul]:space-y-2">{children}</div>
   </section>
 );
 
@@ -30,7 +48,7 @@ export function Privacy() {
       <S id="device" title="Without an account">
         <p>
           Your answers, results, lesson progress and chats are saved in your browser on your own device. They aren't sent to us. Clearing your browser
-          data deletes them; My results lets you download a backup first.
+          data deletes them; Insights lets you download a backup first.
         </p>
       </S>
 

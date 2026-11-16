@@ -2,10 +2,16 @@
 // freely usable measure reproduced with its original wording, keying and cutoffs.
 // Scores are computed only here — the AI never decides a score, band or label.
 
+import { tasks } from "./tasks.js";
+import { pcPtsd5 } from "./instruments/pc-ptsd-5.js";
+import { flourishing } from "./instruments/flourishing.js";
+import { needForCognition } from "./instruments/need-for-cognition.js";
+import { ecrR } from "./instruments/ecr-r.js";
+
 const FREQ_0_3 = ["Not at all", "Several days", "More than half the days", "Nearly every day"];
 const PSS_0_4 = ["Never", "Almost never", "Sometimes", "Fairly often", "Very often"];
 const WHO_0_5 = ["At no time", "Some of the time", "Less than half of the time", "More than half of the time", "Most of the time", "All of the time"];
-const ACCURATE_1_5 = ["Very inaccurate", "Moderately inaccurate", "Neither", "Moderately accurate", "Very accurate"];
+const ACCURATE_1_5 = ["Very inaccurate", "Moderately inaccurate", "Neither accurate nor inaccurate", "Moderately accurate", "Very accurate"];
 const AGREE_4 = ["Strongly agree", "Agree", "Disagree", "Strongly disagree"];
 const AQ_4 = ["Definitely agree", "Slightly agree", "Slightly disagree", "Definitely disagree"];
 const ASRS_0_4 = ["Never", "Rarely", "Sometimes", "Often", "Very often"];
@@ -40,15 +46,16 @@ export const TRAITS = {
 };
 
 export const CATEGORIES = [
-  { id: "cognitive", name: "IQ & reasoning", blurb: "A timed IQ test built from visual pattern puzzles." },
+  { id: "cognitive", name: "IQ & reasoning", blurb: "A timed IQ test built from visual pattern puzzles, plus short memory and attention tasks." },
   { id: "personality", name: "Personality", blurb: "Stable patterns in how you think, feel and act." },
+  { id: "relationships", name: "Relationships", blurb: "How you tend to feel and act in close relationships." },
   { id: "patterns", name: "Personality patterns", blurb: "Screeners for long-standing difficulties. Not diagnoses." },
   { id: "wellbeing", name: "Mood & wellbeing", blurb: "How the last few weeks have been." },
   { id: "strengths", name: "Strengths & motivation", blurb: "How you bounce back, keep going and trust your own ability." },
   { id: "neuro", name: "Attention & social style", blurb: "Screeners for ADHD and autistic traits in adults." },
 ];
 
-export const questionnaires = [
+const QUESTIONNAIRES = [
   {
     id: "big-five",
     category: "personality",
@@ -57,8 +64,8 @@ export const questionnaires = [
     minutes: 8,
     lesson: "big-five",
     measures: "Five broad traits: openness, conscientiousness, extraversion, agreeableness and neuroticism.",
-    cannot: "It can't tell you your rank against other people (we don't use population norms), and it can't describe narrower facets like assertiveness vs. sociability.",
-    source: "Goldberg, L. R. (1992). Psychological Assessment, 4, 26–42. Items from the public-domain International Personality Item Pool (ipip.ori.org). Reported reliabilities (α) ≈ .79–.87 per trait.",
+    cannot: "It can't tell you your rank against other people, and it can't describe narrower facets like assertiveness vs. sociability. The IPIP publishes no norms for these scales and advises against borrowed ones, so the low, middle and high labels are thirds of the score range, not percentiles.",
+    source: "Goldberg, L. R. (1992). Psychological Assessment, 4, 26–42. Items, order and keying from the public-domain International Personality Item Pool (ipip.ori.org). Reported reliabilities (α) ≈ .79–.87 per trait.",
     intro: "Describe yourself as you generally are now, not as you wish to be. How accurately does each statement describe you?",
     options: ACCURATE_1_5.map((label, i) => ({ label, value: i + 1 })),
     items: IPIP50.map(([text]) => text),
@@ -149,20 +156,20 @@ export const questionnaires = [
     riskItem: 1,
     measures: "Whether you report experiences linked with borderline personality disorder: unstable relationships and mood, impulsivity, emptiness and fear of abandonment.",
     cannot: "It is a screener, not a diagnosis. Depression, trauma, ADHD and ordinary stress can all raise the score, and many people above the cutoff do not have BPD.",
-    source: "Zanarini, M. C. et al. (2003). Journal of Personality Disorders, 17, 568–573. A cutoff of 7 gave sensitivity .81 and specificity .85 in young adults.",
+    source: "Zanarini, M. C. et al. (2003). Journal of Personality Disorders, 17, 568–573. A cutoff of 7 gave sensitivity .81 and specificity .85 in the original validation study.",
     intro: "Thinking about your adult life, answer yes or no.",
     options: YES_NO.map((label, i) => ({ label, value: i })),
     items: [
       "Have any of your closest relationships been troubled by a lot of arguments or repeated breakups?",
-      "Have you deliberately hurt yourself physically (for example, punched yourself, cut yourself, burned yourself), or ever made a suicide attempt?",
-      "Have you had at least two other problems with impulsivity (for example, eating binges and spending sprees, drinking too much and verbal outbursts)?",
+      "Have you deliberately hurt yourself physically (e.g., punched yourself, cut yourself, burned yourself)? How about made a suicide attempt?",
+      "Have you had at least two other problems with impulsivity (e.g., eating binges and spending sprees, drinking too much and verbal outbursts)?",
       "Have you been extremely moody?",
-      "Have you felt very angry a lot of the time, or often acted in an angry or sarcastic manner?",
+      "Have you felt very angry a lot of the time? How about often acted in an angry or sarcastic manner?",
       "Have you often been distrustful of other people?",
-      "Have you frequently felt unreal, or as if things around you were unreal?",
+      "Have you frequently felt unreal or as if things around you were unreal?",
       "Have you chronically felt empty?",
-      "Have you often felt that you had no idea of who you are, or that you have no identity?",
-      "Have you made desperate efforts to avoid feeling abandoned or being abandoned (for example, repeatedly calling someone for reassurance, begging them not to leave)?",
+      "Have you often felt that you had no idea of who you are or that you have no identity?",
+      "Have you made desperate efforts to avoid feeling abandoned or being abandoned (e.g., repeatedly called someone to reassure yourself that he or she still cared, begged them not to leave you, clung to them physically)?",
     ],
     scoring: { type: "threshold", counts: (v) => v === 1, cutoff: 7 },
   },
@@ -243,7 +250,7 @@ export const questionnaires = [
     lesson: "stress",
     measures: "How unpredictable, uncontrollable and overloaded your life has felt in the last month.",
     cannot: "It has no clinical cutoff. The bands below are a common convention, not official norms.",
-    source: "Cohen, S., Kamarck, T., & Mermelstein, R. (1983). Journal of Health and Social Behavior, 24, 385–396.",
+    source: "Cohen, S., Kamarck, T., & Mermelstein, R. (1983). Journal of Health and Social Behavior, 24, 385–396. The 10-item version is from Cohen, S., & Williamson, G. (1988), in The Social Psychology of Health (Sage). Permission is not needed for non-profit research or educational use.",
     intro: "In the last month, how often have you…",
     options: PSS_0_4.map((label, i) => ({ label, value: i })),
     items: [
@@ -294,7 +301,7 @@ export const questionnaires = [
       max: 100,
       bands: [
         { max: 28, level: "Low", tone: "alert", text: "28 or below is a common screen for depression. Try the low mood check and consider talking to someone." },
-        { max: 49, level: "Below 50", tone: "warn", text: "Under 50 suggests reduced wellbeing. Daylight, movement and one enjoyable thing a day measurably help." },
+        { max: 50, level: "50 or below", tone: "warn", text: "50 or below suggests reduced wellbeing. Daylight, movement and one enjoyable thing a day measurably help." },
         { max: 100, level: "Good", tone: "good", text: "Your wellbeing is in a healthy range." },
       ],
     },
@@ -308,7 +315,7 @@ export const questionnaires = [
     lesson: "wellbeing",
     measures: "How satisfied you are with your life as a whole, judged by your own standards.",
     cannot: "It's a global judgement: it doesn't say which parts of life (work, relationships, health) drive the score.",
-    source: "Diener, E., Emmons, R. A., Larsen, R. J., & Griffin, S. (1985). Journal of Personality Assessment, 49, 71-75. Free to use. Bands from Pavot & Diener (2008).",
+    source: "Diener, E., Emmons, R. A., Larsen, R. J., & Griffin, S. (1985). Journal of Personality Assessment, 49, 71-75. Copyrighted; free to use with credit for non-commercial purposes (eddiener.com). Bands are the ones printed on the authors' scale sheet.",
     intro: "How much do you agree with each statement?",
     options: SWLS_1_7.map((label, i) => ({ label, value: i + 1 })),
     items: [
@@ -329,7 +336,7 @@ export const questionnaires = [
         { max: 20, level: "Neutral", tone: "ok", text: "Satisfied and dissatisfied in roughly equal measure." },
         { max: 25, level: "Slightly satisfied", tone: "ok", text: "The typical range in most high-income countries: generally satisfied, with areas you'd like to improve." },
         { max: 30, level: "Satisfied", tone: "good", text: "You like your life. Most areas are going well." },
-        { max: 35, level: "Highly satisfied", tone: "good", text: "You love your life and feel things are going very well." },
+        { max: 35, level: "Extremely satisfied", tone: "good", text: "You love your life and feel things are going very well." },
       ],
     },
   },
@@ -467,15 +474,15 @@ export const questionnaires = [
     measures: "Whether you report the inattention and restlessness most predictive of adult ADHD over the past six months.",
     cannot: "A diagnosis needs symptoms since childhood, in more than one setting, and a clinician ruling out anxiety, depression, sleep problems and more.",
     source: "Kessler, R. C. et al. (2005). Psychological Medicine, 35, 245–256. World Health Organization. Four or more marked answers is consistent with adult ADHD.",
-    intro: "Over the past 6 months, how often…",
+    intro: "Answer for how you have felt and conducted yourself over the past 6 months.",
     options: ASRS_0_4.map((label, i) => ({ label, value: i })),
     items: [
-      "…have you had trouble wrapping up the final details of a project, once the challenging parts have been done?",
-      "…have you had difficulty getting things in order when you have to do a task that requires organization?",
-      "…have you had problems remembering appointments or obligations?",
+      "How often do you have trouble wrapping up the final details of a project, once the challenging parts have been done?",
+      "How often do you have difficulty getting things in order when you have to do a task that requires organization?",
+      "How often do you have problems remembering appointments or obligations?",
       "When you have a task that requires a lot of thought, how often do you avoid or delay getting started?",
-      "…do you fidget or squirm with your hands or feet when you have to sit down for a long time?",
-      "…do you feel overly active and compelled to do things, like you were driven by a motor?",
+      "How often do you fidget or squirm with your hands or feet when you have to sit down for a long time?",
+      "How often do you feel overly active and compelled to do things, like you were driven by a motor?",
     ],
     scoring: { type: "threshold", counts: (v, i) => (i < 3 ? v >= 2 : v >= 3), cutoff: 4 },
   },
@@ -488,7 +495,7 @@ export const questionnaires = [
     lesson: "autism",
     measures: "Ten autistic traits, such as attention to detail and reading social cues.",
     cannot: "It's a quick referral screen. Many autistic adults score below 6, and many non-autistic people score above it.",
-    source: "Allison, C., Auyeung, B., & Baron-Cohen, S. (2012). Journal of the American Academy of Child & Adolescent Psychiatry, 51, 202–212. Autism Research Centre, Cambridge. A score of 6+ suggests considering a specialist assessment.",
+    source: "Allison, C., Auyeung, B., & Baron-Cohen, S. (2012). Journal of the American Academy of Child & Adolescent Psychiatry, 51, 202–212. Autism Research Centre, Cambridge; free of charge for non-profit use, including research and education. A score of 6 or above suggests considering a specialist assessment.",
     intro: "How much do you agree with each statement?",
     options: AQ_4.map((label, i) => ({ label, value: i })),
     items: [
@@ -499,20 +506,30 @@ export const questionnaires = [
       "I find it easy to 'read between the lines' when someone is talking to me.",
       "I know how to tell if someone listening to me is getting bored.",
       "When I'm reading a story I find it difficult to work out the characters' intentions.",
-      "I like to collect information about categories of things (e.g. types of car, types of bird, types of train, types of plant).",
+      "I like to collect information about categories of things (e.g. types of car, types of bird, types of train, types of plant etc).",
       "I find it easy to work out what someone is thinking or feeling just by looking at their face.",
       "I find it difficult to work out people's intentions.",
     ],
     // Items 1, 7, 8, 10 score on agreement; the rest on disagreement.
     scoring: { type: "threshold", counts: (v, i) => ([0, 6, 7, 9].includes(i) ? v <= 1 : v >= 2), cutoff: 6 },
   },
+  // Added instruments live one per file in ./instruments, each with its source URL.
+  needForCognition,
+  ecrR,
+  flourishing,
+  pcPtsd5,
 ];
+
+// Everything a person can take: questionnaires first, then the interactive tasks.
+export const questionnaires = [...QUESTIONNAIRES, ...tasks];
 
 export const byId = (id) => questionnaires.find((q) => q.id === id);
 
 // ---------------- Scoring ----------------
 
 export function scoreQuestionnaire(q, answers) {
+  // Interactive tasks have no items and are scored by their own code.
+  if (!Array.isArray(q.items)) throw new Error(`${q.id}: not a questionnaire`);
   if (answers.length !== q.items.length || answers.some((a) => a === undefined || a === null)) {
     throw new Error(`${q.id}: expected ${q.items.length} answers`);
   }
@@ -528,7 +545,19 @@ export function scoreQuestionnaire(q, answers) {
       // 10 items × 1–5 = 10–50. Bands split the score range in thirds — a description of
       // your answers, not a population percentile.
       const band = score <= 23 ? "low" : score >= 37 ? "high" : "mid";
-      return { key, name: TRAITS[key].name, score, min: 10, max: 50, band, note: band === "mid" ? "You sit near the middle: both descriptions fit you at times." : TRAITS[key][band] };
+      return { key, name: TRAITS[key].name, score, min: 10, max: 50, band, level: { low: "Low", mid: "Middle", high: "High" }[band], tone: "ok", note: band === "mid" ? "You sit near the middle: both descriptions fit you at times." : TRAITS[key][band] };
+    });
+    return { type: "traits", traits, riskFlag };
+  }
+
+  // Several scales in one instrument. Returns the same shape as the Big Five so the UI renders it.
+  if (s.type === "subscales") {
+    const flip = Math.max(...q.options.map((o) => o.value)) + Math.min(...q.options.map((o) => o.value));
+    const traits = s.scales.map((sc) => {
+      const total = sc.items.reduce((acc, i) => acc + (sc.reverse?.includes(i) ? flip - answers[i] : answers[i]), 0);
+      const score = s.method === "mean" ? Math.round((total / sc.items.length) * 100) / 100 : total * (s.multiplier ?? 1);
+      const b = sc.bands.find((x) => score <= x.max) ?? sc.bands.at(-1);
+      return { key: sc.key, name: sc.name, score, min: sc.min, max: sc.max, band: b.band, level: b.level, tone: b.tone, note: b.note };
     });
     return { type: "traits", traits, riskFlag };
   }
@@ -546,7 +575,9 @@ export function scoreQuestionnaire(q, answers) {
     const maxOpt = Math.max(...q.options.map((o) => o.value));
     const minOpt = Math.min(...q.options.map((o) => o.value));
     // Reverse-keyed items flip within the option range (works for 0-based and 1-based scales).
-    const raw = answers.reduce((acc, v, i) => acc + (s.reverse?.includes(i) ? maxOpt + minOpt - v : v), 0);
+    // gate: index of an unscored entry question. Answering it 0 ("No") makes the total 0, as the instrument specifies.
+    const gated = s.gate !== undefined && answers[s.gate] === 0;
+    const raw = gated ? 0 : answers.reduce((acc, v, i) => acc + (i === s.gate ? 0 : s.reverse?.includes(i) ? maxOpt + minOpt - v : v), 0);
     const score = raw * (s.multiplier ?? 1);
     const band = s.bands.find((b) => score <= b.max) ?? s.bands.at(-1);
     return { type: "sum", score, min: s.min ?? 0, max: s.max, band, riskFlag };

@@ -49,4 +49,14 @@ describe("device ownership", () => {
     clearDeviceData();
     expect(Object.keys(localStorage).filter((k) => k.includes("stash:"))).toEqual([]);
   });
+
+  it("restores parked check-ins on return and keeps today's entry", () => {
+    claimDevice("user-1");
+    save("checkins", [{ date: "2026-01-01", mood: 2 }, { date: "2026-01-02", mood: 4 }]);
+    releaseDevice();
+    expect(load("checkins", [])).toEqual([]);
+    save("checkins", [{ date: "2026-01-02", mood: 5 }]);
+    claimDevice("user-1");
+    expect(load("checkins")).toEqual([{ date: "2026-01-02", mood: 5 }, { date: "2026-01-01", mood: 2 }]);
+  });
 });

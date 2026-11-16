@@ -1,56 +1,95 @@
 # MindSpace design system
 
-The visual world is the psychology lab's paperwork: a Rubin's-vase card from a perception study, and
-the answer sheet printed in green "drop-out" ink. Graphite ink on cool paper, one deep green for
-actions, and a pencil-yellow mark for the one thing you're asked to find.
+**Twilight editorial.** A quiet, achromatic page with one blue for actions, a retro serif for the
+big statements, and the dusk sky as the single atmospheric moment. The name is literal: the sky is
+the "space", the page beneath it is where you think.
 
-## Logo
+Reference: the *Portal* style on styles.refero.design (twilight serif editorial), adapted for a
+product people use for a long time: a night theme, status tones for results, and reading-length text.
 
-`brand/mindspace-mark.svg` (presentation: `brand/mindspace-logo.png`). Rubin's vase: two facing
-profiles whose shared negative space is a vase, so the mark is literally the space between minds. It
-reads at 16 px, works in one colour, and the favicon (`public/favicon.svg`) switches with the
-browser's light or dark theme. In the app it is `LogoMark` in `src/components/ui.jsx`.
+## The five things that must survive
+
+1. **The dusk sky** (`<Sky>`): sky blue through violet and mauve to warm coral, with hills on the horizon. It is the only large coloured surface. At most one per page.
+2. **Serif for display only.** Fraunces 400 on `h1`/`h2` and `.display`, never below 28 px, never bold, never for buttons, labels or body. Everything else is Inter.
+3. **One accent.** Blue (`brand`) is for actions, links, focus, selection and progress. Never a decorative fill, never a section background.
+4. **Pills and soft corners.** Every button is a full pill. Cards are 22 px, large feature surfaces and images 30 px. Nothing interactive is sharper than 12 px.
+5. **Halos, not shadows.** Depth is a 1 px line plus a 5 px soft ring (`.card`). No drop shadows except the gentle lift on `.card-hover`.
 
 ## Colour
 
-Tokens are CSS variables on `:root` / `html.dark` in `src/index.css`, exposed to Tailwind as `bg-paper`, `text-ink`, etc.
+CSS variables in `src/index.css`, exposed to Tailwind as `bg-paper`, `text-ink-2`, `border-line`, etc.
 
-| Token | Light | Dark | Use |
+| Token | Light | Night | Use |
 |---|---|---|---|
-| `paper` | `#f4f5f1` | `#0f1513` | Page background (cool grey-green, not cream) |
-| `surface` | `#ffffff` | `#161e1a` | Panels, answer tiles |
-| `sunken` | `#eceee9` | `#0b100e` | Wells: matrix grid, meters, tags |
-| `ink` | `#15211c` | `#e9eeea` | Text and the logo |
-| `ink-2` | `#4c5853` | `#a3afa9` | Secondary text |
-| `line` | `#d9ded8` | `#26302b` | Borders, rules |
-| `brand` | `#1f5e4b` | `#7cc2a3` | Primary actions, progress, selection |
-| `marigold` | `#d4952b` | `#e2a94b` | The "find this" mark: the blank puzzle cell. Never body text. |
-| `sage` / `amber` / `rose` | `#2e7d5b` / `#8a5a00` / `#b3473f` | lighter | Result tones |
+| `paper` | `#f7f7f7` | `#0b0b0f` | Page canvas |
+| `surface` | `#ffffff` | `#15151b` | Cards, inputs, nav capsule |
+| `sunken` | `#f0f0f2` | `#0f0f14` | Wells, tracks, tags, hover fills |
+| `ink` | `#000000` | `#f5f5f7` | Headings, strong text, dark buttons |
+| `ink-2` | `#3e3e3e` | `#c9c9d1` | Body text (the `body` default) |
+| `ink-3` | `#636363` | `#9a9aa6` | Muted text, metadata, captions |
+| `line` | `#e7e7ea` | `#26262e` | Hairlines and card borders |
+| `brand` | `#007aff` | `#3d9bff` | Rings, icons, focus, progress, selection |
+| `brand-fill` | `#0070eb` | `#3d9bff` | Filled buttons only (text is `brand-ink`) |
+| `brand-text` | `#0064d2` | `#6cb2ff` | Links and small blue text |
+| `brand-soft` | `#e8f2ff` | `#10243d` | Selected rows, active tab, blue tags |
+| `sage` / `amber` / `rose` (+ `-soft`) | | | **Result tones only**: good / caution / alert. Not decoration. |
+
+Text on the sky is always white (`.sky` sets it). Never put dark text on the gradient, and never
+put body-size text over the warm lower third: keep copy in the upper two thirds.
 
 ## Type
 
-- **Display:** Source Serif 4 (variable, optical sizes), weight 600 to 650. An academic-journal voice for a site about published research.
-- **Body:** Atkinson Hyperlegible 400/700, 17 px, line-height 1.6. Built for legibility by the Braille Institute.
-- Both self-hosted (no Google Fonts requests). Sentence case; no all-caps labels.
+- **Display:** Fraunces Variable, weight 400, line-height 1.0 to 1.05, tracking −0.02em. Sizes 28 to 72 px. Sentence case.
+- **UI and body:** Inter Variable 400 / 500 / 600 only (never 700+), tracking −0.014em. Body 16 px / 1.5. `.lead` 18 px. Long reading uses `.prose-lesson` (17 px / 1.65, 66ch).
+- Small headings (`h3`, `h4`, card titles) are Inter 600. `.eyebrow` is 13 px Inter 600 in `ink-3`, sentence case. **No all-caps labels, no letter-spaced caps.**
+- Numbers that change or line up use `.num` (tabular).
+- No decorative italic or coloured word inside a headline.
 
-## Shape and space
+## Space and shape
 
-- Radius by hierarchy: `--r-sm` 6 px (cells), `--r-md` 10 px (answers, callouts), `--r-lg` 14 px (panels). Buttons 8 px.
-- Spacing on Tailwind's 4 px scale; sections `py-14`, page gutters 16 px.
-- Touch targets ≥ 44 px (buttons 48 px, answer rows 52 px, bottom tabs 58 px).
+- Page width 1200 px (`.container-page`), reading width 680 px (`.reading`).
+- Sections: `.section` (72 px mobile, 104 px desktop). Card padding 20 to 32 px. Gaps 12 to 24 px.
+- Radii: `rounded-[var(--r-sm)]` 12, `--r-md` 16, `--r-lg` 22 (cards), `--r-xl` 30 (hero panels, feature blocks). Pills `rounded-full`.
+- Touch targets ≥ 44 px. Buttons are 48 px (`.btn-sm` 40, `.btn-lg` 56).
 
-## Components (`src/index.css` + `src/components/`)
+## Kit
 
-`.panel` · `.btn` + `.btn-primary` / `.btn-quiet` · `.tag` · `.link` · `Meter` · `CrisisCallout` · `MatrixGrid` / `MatrixCell` · `Icon` · `LogoMark`
+CSS classes (`src/index.css`):
+`.card` (white, line, halo) · `.card-flat` · `.card-hover` (lift on hover) · `.well` · `.glass` ·
+`.btn` + `.btn-primary` (blue) / `.btn-dark` (ink) / `.btn-ghost` (outline) / `.btn-soft` (grey) / `.btn-sky` + `.btn-sky-ghost` (on the sky only) + `.btn-sm` / `.btn-lg` ·
+`.tag` + `.tag-brand` / `.tag-good` / `.tag-warn` / `.tag-alert` · `.link` · `.field` + `.input` ·
+`.eyebrow` · `.lead` · `.display` · `.num` · `.container-page` · `.section` · `.reading` · `.prose-lesson` · `.skeleton` · `.animate-float`
 
-## Motion
+Components (`src/components/ui.jsx`):
+`LogoMark` · `Wordmark` · `Icon` (see the `ICONS` map for names) · `Reveal` · `Stagger` + `StaggerItem` · `CountUp` ·
+`Sky` · `PageHeader` · `BackLink` · `Ring` · `Meter` · `Sparkline` · `TONE` · `CrisisCallout` · `EASE`
 
-- One orchestrated moment: the hero puzzle's cells build in on load.
-- Section headings fade up once on scroll; questions slide in when you answer; results fade in.
-- Ease `cubic-bezier(0.22, 1, 0.36, 1)`, 200–700 ms.
-- `prefers-reduced-motion` turns animation off (CSS rule + `MotionConfig reducedMotion="user"`).
+Use the kit before writing anything new. If a pattern is needed on more than one page, it belongs in the kit.
 
 ## Layout
 
-- Mobile first. Below `md` (768 px): top bar shows only logo + theme, a fixed 5-tab bar sits at the bottom with safe-area padding.
-- Content is left-aligned. Reading pages cap at `max-w-3xl`.
+- The nav is a floating glass capsule (`App.jsx`), fixed at the top; on phones a second capsule of five tabs floats at the bottom.
+- Every page except Home is rendered inside `main.container-page` with top padding that already clears the nav. **Pages must not add their own outer container or top padding.** Start with `<PageHeader>` (or `<BackLink>` then a header).
+- Home is full-bleed and owns its own containers; its hero is a rounded `Sky` panel inset from the viewport edge with the nav floating over it.
+- Mobile first. Check 375 px: no horizontal scroll, the bottom tab capsule (about 80 px) must never cover a primary action.
+- Marketing sections are editorial: one idea per section, generous gaps. Avoid rows of three identical icon cards; vary the composition (split, list, bento, big number).
+
+## Motion
+
+- Ease `EASE` = `cubic-bezier(0.22, 1, 0.36, 1)`. Entrances 500 to 800 ms, feedback 150 to 250 ms. Springs for things that follow the finger (`stiffness 420, damping 36`).
+- Scroll: `Reveal` / `Stagger` once per element. Data draws itself in: `Ring`, `Meter`, `Sparkline`, `CountUp`.
+- Shared-element feel: the active nav pill and tab pill slide (`layoutId`). Use `layoutId` for selected states in lists and segmented controls.
+- Buttons press to 0.97. Cards lift 3 px on hover (`.card-hover`).
+- Animate only `transform` and `opacity` (plus SVG stroke). No layout-thrashing animations, no parallax on text.
+- `prefers-reduced-motion`: CSS collapses durations and `MotionConfig reducedMotion="user"` is set at the root. Nothing may depend on an animation finishing to be usable.
+
+## Voice
+
+Plain, warm, exact. Say what a score means and what it cannot tell you. No hype, no exclamation
+marks, no em dashes in UI copy. Never imply diagnosis.
+
+## Logo
+
+`brand/mindspace-mark.svg`, `public/favicon.svg`, `LogoMark` in the kit. A dusk-gradient disc
+holding two white hills that read as a lower-case "m", under one evening star. The wordmark is
+"MindSpace" in Inter 600, tracking −0.03em.

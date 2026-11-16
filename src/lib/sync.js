@@ -4,7 +4,7 @@ import { supabase } from "./supabase";
 import { getResults, getProgress, save, load, remove } from "./storage";
 
 const KNOWN_TYPES = ["traits", "sum", "threshold", "matrix"];
-const PERSONAL_KEYS = ["results", "progress", "chat", "aiCache", "aiConsent"];
+const PERSONAL_KEYS = ["results", "progress", "checkins", "chat", "aiCache", "aiConsent"];
 
 const snapshot = () => Object.fromEntries(PERSONAL_KEYS.map((k) => [k, load(k, null)]));
 
@@ -32,6 +32,9 @@ export function claimDevice(userId) {
     const progress = { ...(mine.progress || {}) };
     for (const [k, v] of Object.entries(getProgress())) if (!progress[k] || v.correct > progress[k].correct) progress[k] = v;
     save("progress", progress);
+    // Check-ins never leave the device, so the parked copy is the only one: merge it back by day.
+    const days = new Set(load("checkins", []).map((c) => c.date));
+    save("checkins", [...load("checkins", []), ...(mine.checkins || []).filter((c) => !days.has(c.date))].sort((x, y) => y.date.localeCompare(x.date)));
     for (const k of ["chat", "aiCache", "aiConsent"]) if (load(k, null) === null && mine[k] !== null) save(k, mine[k]);
     remove(`stash:${userId}`);
   }

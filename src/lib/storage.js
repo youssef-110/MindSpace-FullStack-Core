@@ -21,7 +21,7 @@ export function save(key, value) {
   }
 }
 
-const emit = (name, detail) => {
+export const emit = (name, detail) => {
   if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent(name, { detail }));
 };
 
@@ -65,7 +65,7 @@ export function saveQuizScore(lessonId, correct, total) {
 
 // Removes all MindSpace personal data from this device, including other accounts' parked copies.
 export function clearDeviceData() {
-  ["results", "progress", "chat", "aiCache", "aiConsent", "owner"].forEach(remove);
+  ["results", "progress", "checkins", "chat", "aiCache", "aiConsent", "owner"].forEach(remove);
   // Parked copies of any account's data on this device go too.
   try {
     Object.keys(localStorage)
@@ -77,10 +77,25 @@ export function clearDeviceData() {
   emit("mindspace:device-cleared");
 }
 
+// ---------------- Daily check-ins (logic lives in src/lib/checkin.js) ----------------
+
+const isLevel = (n) => Number.isInteger(n) && n >= 1 && n <= 5;
+
+// Returns a clean check-in entry, or null when the input is not one. `date` is a local YYYY-MM-DD.
+export function cleanCheckin(e) {
+  if (!e || typeof e.date !== "string" || !isLevel(e.mood) || !isLevel(e.energy)) return null;
+  const [y, m, d] = /^\d{4}-\d{2}-\d{2}$/.test(e.date) ? e.date.split("-").map(Number) : [];
+  const day = new Date(y, m - 1, d);
+  if (day.getFullYear() !== y || day.getMonth() !== m - 1 || day.getDate() !== d) return null; // rejects 2026-02-31
+  const tags = Array.isArray(e.tags) ? [...new Set(e.tags.filter((t) => typeof t === "string" && t.trim()).map((t) => t.trim().slice(0, 24)))].slice(0, 12) : [];
+  return { date: e.date, mood: e.mood, energy: e.energy, tags, note: typeof e.note === "string" ? e.note.slice(0, 280) : "" };
+}
+
 // ---------------- Backup ----------------
 
+// `checkins` was added without a version bump: older backups simply lack the field.
 export function exportData() {
-  return JSON.stringify({ app: "mindspace", version: 2, results: getResults(), progress: getProgress() }, null, 2);
+  return JSON.stringify({ app: "mindspace", version: 2, results: getResults(), progress: getProgress(), checkins: load("checkins", []) }, null, 2);
 }
 
 export function importData(json) {
@@ -92,5 +107,12 @@ export function importData(json) {
   const known = new Set(getResults().map((r) => r.id));
   save("results", [...getResults(), ...valid.filter((r) => !known.has(r.id))].sort((a, b) => b.date.localeCompare(a.date)));
   save("progress", { ...getProgress(), ...data.progress });
+  if (Array.isArray(data.checkins)) {
+    // One per day. A day already logged on this device keeps its entry.
+    const mine = load("checkins", []);
+    const days = new Set(mine.map((c) => c.date));
+    const incoming = data.checkins.map(cleanCheckin).filter((c) => c && !days.has(c.date) && days.add(c.date));
+    if (incoming.length) save("checkins", [...mine, ...incoming].sort((a, b) => b.date.localeCompare(a.date)));
+  }
   return valid.length;
 }

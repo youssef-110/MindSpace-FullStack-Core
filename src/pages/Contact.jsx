@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { Icon, PageHeader } from "../components/ui";
 
 const TOPICS = [
   ["privacy", "My data or privacy"],
@@ -31,46 +32,55 @@ export default function Contact() {
     setState("sent");
   }
 
-  const field = "mt-1.5 block w-full rounded-[8px] border border-line bg-surface px-3.5 text-base focus:border-brand";
   if (state === "sent") {
     return (
-      <div className="mx-auto max-w-xl py-16">
-        <h1 className="text-4xl font-semibold">Message sent</h1>
-        <p className="mt-3 text-ink-2">Thanks. {replyTo ? "We'll reply to the address you gave." : "You didn't leave a reply address, so we won't be able to answer directly."}</p>
-        <Link to="/" className="btn btn-quiet mt-6">Back to the home page</Link>
+      <div className="mx-auto max-w-xl" role="status">
+        <span className="grid h-12 w-12 place-items-center rounded-full bg-brand-soft text-brand-text">
+          <Icon name="check" />
+        </span>
+        <h1 className="mt-6 text-[2.5rem] sm:text-5xl">Message sent</h1>
+        <p className="lead mt-4">Thanks. {replyTo ? "We'll reply to the address you gave." : "You didn't leave a reply address, so we won't be able to answer directly."}</p>
+        <Link to="/" className="btn btn-ghost mt-8">Back to the home page</Link>
       </div>
     );
   }
   return (
-    <div className="mx-auto max-w-xl py-10">
-      <h1 className="text-4xl sm:text-5xl font-semibold">Contact</h1>
-      <p className="mt-3 text-ink-2">
-        Questions about your data, a problem with the site, or an idea. For privacy requests, signing in first lets you download or delete everything
-        yourself from your <Link to="/account" className="link">account page</Link>.
-      </p>
-      <form onSubmit={submit} className="mt-8 space-y-5">
-        <label className="block">
-          <span className="font-bold">What's it about?</span>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)} className={`${field} min-h-[48px]`}>
+    <div className="mx-auto max-w-xl">
+      <PageHeader title="Contact">
+        <p className="lead mt-4">
+          Questions about your data, a problem with the site, or an idea. For privacy requests, signing in first lets you download or delete everything
+          yourself from your <Link to="/account" className="link">account page</Link>.
+        </p>
+      </PageHeader>
+      <form onSubmit={submit} className="card grid gap-5 p-5 sm:p-8">
+        <label className="field">
+          What's it about?
+          <select value={topic} onChange={(e) => setTopic(e.target.value)} className="input">
             {TOPICS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
           </select>
         </label>
-        <label className="block">
-          <span className="font-bold">Message</span>
-          <textarea required minLength={5} maxLength={3000} rows={6} value={message} onChange={(e) => setMessage(e.target.value)} className={`${field} py-3`} />
+        <label className="field">
+          Message
+          <textarea required minLength={5} maxLength={3000} rows={6} value={message} onChange={(e) => setMessage(e.target.value)} className="input" />
         </label>
-        <label className="block">
-          <span className="font-bold">Email for a reply</span> <span className="text-ink-2">(optional)</span>
-          <input type="email" maxLength={200} autoComplete="email" inputMode="email" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} className={`${field} min-h-[48px]`} />
-          <span className="mt-1 block text-sm text-ink-2">Only used to answer this message.</span>
+        <label className="field">
+          <span>Email for a reply <span className="font-normal text-ink-3">(optional)</span></span>
+          <input type="email" maxLength={200} autoComplete="email" inputMode="email" value={replyTo} onChange={(e) => setReplyTo(e.target.value)} className="input" aria-describedby="reply-hint" />
+          <span id="reply-hint" className="font-normal text-ink-3">Only used to answer this message.</span>
         </label>
         <label className="hidden" aria-hidden="true">
           Leave this empty
           <input tabIndex={-1} autoComplete="off" value={trap} onChange={(e) => setTrap(e.target.value)} />
         </label>
-        {error && <p className="font-bold text-rose" role="alert">{error}</p>}
-        <button className="btn btn-primary" disabled={state === "sending" || message.trim().length < 5}>
+        {error && (
+          <p className="flex items-start gap-2 rounded-[var(--r-md)] bg-rose-soft p-3.5 text-sm font-medium text-rose" role="alert">
+            <Icon name="alert" size={20} />
+            {error}
+          </p>
+        )}
+        <button className="btn btn-primary sm:justify-self-start" disabled={state === "sending" || message.trim().length < 5}>
           {state === "sending" ? "Sending…" : "Send message"}
+          {state !== "sending" && <Icon name="send" size={18} />}
         </button>
       </form>
     </div>

@@ -43,8 +43,8 @@ export default function MatrixCell({ cell, label }) {
   const id = useId().replace(/:/g, "");
   if (!cell) {
     return (
-      <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label={label ?? "Missing piece"}>
-        <text x="50" y="62" textAnchor="middle" fontSize="34" fontWeight="700" fill="var(--marigold)">?</text>
+      <svg viewBox="0 0 100 100" className="h-full w-full" role="img" aria-label={label ?? "Missing piece"}>
+        <text x="50" y="63" textAnchor="middle" fontSize="36" fontWeight="600" fill="var(--brand)">?</text>
       </svg>
     );
   }
@@ -52,7 +52,7 @@ export default function MatrixCell({ cell, label }) {
   const fill = cell.fill === "solid" ? "currentColor" : cell.fill === "striped" ? `url(#h${id})` : "none";
   const d = shapePath(cell.shape, r);
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full" role="img" aria-label={label ?? `${cell.count} ${cell.fill} ${cell.shape}`}>
+    <svg viewBox="0 0 100 100" className="h-full w-full" role="img" aria-label={label ?? `${cell.count} ${cell.fill} ${cell.shape}`}>
       <defs>
         <pattern id={`h${id}`} width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
           <line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" strokeWidth="2.4" />
@@ -69,12 +69,12 @@ export default function MatrixCell({ cell, label }) {
 
 export function MatrixGrid({ cells, reveal }) {
   return (
-    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 p-1.5 sm:p-2 rounded-[var(--r-md)] bg-sunken" aria-label="Pattern grid, bottom-right piece missing">
+    <div className="grid grid-cols-3 gap-1.5 rounded-[var(--r-lg)] bg-sunken p-1.5 text-ink sm:gap-2 sm:p-2" role="group" aria-label={reveal ? "Pattern grid" : "Pattern grid, bottom-right piece missing"}>
       {cells.flat().map((c, i) => (
         <motion.div
           key={i}
           variants={{ hidden: { opacity: 0, scale: 0.85 }, show: { opacity: 1, scale: 1 } }}
-          className={`aspect-square rounded-[var(--r-sm)] p-1.5 ${i === 8 && !reveal ? "border-2 border-dashed border-marigold bg-surface" : "bg-surface"}`}
+          className={`aspect-square rounded-[var(--r-md)] p-1.5 ${i === 8 && !reveal ? "border-2 border-dashed border-brand bg-brand-soft" : "bg-surface"}`}
         >
           <MatrixCell cell={i === 8 && !reveal ? null : c} />
         </motion.div>
